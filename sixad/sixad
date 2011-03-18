@@ -112,7 +112,7 @@ else
   using_old_bt_ver
   fix_new_rumble_code
   /sbin/modprobe uinput
-  /usr/sbin/sixad-bin $DEBUG
+  /usr/sbin/sixad-bin $DEBUG $LEGACY
 fi
   ;;
 
