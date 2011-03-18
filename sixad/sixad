@@ -54,21 +54,6 @@ bt_start () {
 if [ -f /lib/udev/rules.d/97-bluetooth.rules ]; then sudo /usr/sbin/bluetoothd --udev; else sudo /etc/init.d/bluetooth start; fi
 }
 
-fix_new_rumble_code () {
-if [ -d /var/lib/sixad/profiles/ ]; then
-  FILES=`ls /var/lib/sixad/profiles/`
-  for i in $FILES; do
-    if (cat /var/lib/sixad/profiles/$i | grep old_rumble_mode > /dev/null); then
-      true
-    else
-      echo "
-# Fix for new rumble code:
-old_rumble_mode 0
-" >> /var/lib/sixad/profiles/$i
-    fi
-  done
-fi
-}
 case $1 in
 
   --boot-no)
@@ -110,7 +95,6 @@ sudo /usr/sbin/hcid
 if (sixad_already_running_check "$1"); then true
 else
   using_old_bt_ver
-  fix_new_rumble_code
   /sbin/modprobe uinput
   /usr/sbin/sixad-bin $DEBUG $LEGACY
 fi
@@ -132,7 +116,6 @@ if (bluetoothd_check "$1"); then pkill -KILL bluetoothd; fi
 if (sixad_already_running_check "$1"); then true
 else
   DEBUG=1
-  fix_new_rumble_code
   /sbin/modprobe uinput
   date >> /var/log/sixad.log
   /usr/sbin/sixad-bin $DEBUG $LEGACY &>> /var/log/sixad.log
@@ -159,7 +142,6 @@ else
   { #3
   if (bluetoothd_check "$1"); then sudo pkill -KILL bluetoothd; fi
   using_old_bt_ver
-  fix_new_rumble_code
   sudo /usr/sbin/hcid
   sudo /usr/sbin/sixad-bin $DEBUG $LEGACY
    } #3
