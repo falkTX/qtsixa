@@ -169,6 +169,10 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
         uinput_send(fd, EV_KEY, BTN_JOYSTICK + 15, b2 & 1);
         //part3
         uinput_send(fd, EV_KEY, BTN_JOYSTICK + 16, b3 & 1);
+
+        if (b1 > 0 || b2 > 0 || b3 > 0) {
+          set_active(true);
+        }
     }
 
     //axis
@@ -177,6 +181,10 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
         uinput_send(fd, EV_ABS, 1, ly);
         uinput_send(fd, EV_ABS, 2, rx);
         uinput_send(fd, EV_ABS, 3, ry);
+
+        if (lx != 0 || ly != 0 || rx != 0 || ry != 0) {
+          set_active(true);
+        }
     }
 
     //accelerometer RAW
@@ -201,6 +209,10 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
         uinput_send(fd, EV_ABS, 17, cir);
         uinput_send(fd, EV_ABS, 18, cro);
         uinput_send(fd, EV_ABS, 19, squ);
+
+        if (up > 0 || right > 0 || down > 0 || left > 0 || l2 > 0 || r2 > 0 || l1 > 0 || r1 > 0 || tri > 0 || cir > 0 || cro > 0 || squ > 0 ) {
+          set_active(true);
+        }
     }
 
     //acceleration
@@ -252,6 +264,14 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
 
     last_b1 = b1;
 
+    if (b1 > 0 || b2 > 0 || b3 > 0) {
+      set_active(true);
+    }
+
+    if (lx != 0 || ly != 0 || rx != 0 || ry != 0) {
+      set_active(true);
+    }
+
     //buttons
     if (!input.use_lr3 || (input.use_lr3 && lr3_buttons)) {
       //part1
@@ -294,7 +314,7 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
     if (!input.use_lr3 || (input.use_lr3 && lr3_axis)) {
       int rel;
       bool rw_do;
-      
+
       if (rw_timer%(input.axis_speed*2) == 0)
         rw_do = true;
       else
@@ -358,8 +378,7 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
     }
 
     uinput_send(fd, EV_SYN, SYN_REPORT, 0);
-    
-    
+
     if (rw_timer > 0xff)
       rw_timer = 0;
     else

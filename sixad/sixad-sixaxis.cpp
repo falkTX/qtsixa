@@ -25,6 +25,7 @@
 #include <signal.h>
 #include <string.h>
 #include <syslog.h>
+#include <time.h>
 #include <sys/socket.h>
 
 int fd;
@@ -157,16 +158,41 @@ static void rumble_listen()
     pthread_exit((void*)1);
 }
 
+static int get_time()
+{
+  timespec tp;
+  if (!clock_gettime(CLOCK_MONOTONIC, &tp)) {
+    return tp.tv_sec/60;
+  } else {
+    return -1;
+  }
+}
+
 static void process_sixaxis(struct device_settings settings, const char *mac)
 {
     int br;
     bool msg = true;
     unsigned char buf[128];
+
+    int last_time_action = get_time();
+
     while (!io_canceled()) {
         br = read(isk, buf, sizeof(buf));
         if (msg) {
             syslog(LOG_INFO, "Connected 'PLAYSTATION(R)3 Controller (%s)' [Battery %02X]", mac, buf[31]);
             msg = false;
+        }
+
+        if (settings.timeout.enabled) {
+          int current_time = get_time();
+          if (was_active()) {
+            last_time_action = current_time;
+            set_active(false);
+          } else if (current_time-last_time_action >= settings.timeout.timeout) {
+            syslog(LOG_INFO, "Sixaxis was not in use, and timeout reached, disconneting...");
+            sig_term(0);
+            break;
+          }
         }
 
         if (br < 0) {
@@ -177,7 +203,7 @@ static void process_sixaxis(struct device_settings settings, const char *mac)
         } else if (br==50 && buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0xff) {
             if (debug) syslog(LOG_ERR, "Got 0xff Sixaxis buffer");
         } else if (buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0x00) {
-            syslog(LOG_ALERT, "Sixaxis out of battery!");
+            syslog(LOG_ALERT, "Sixaxis out of battery!"); // TODO - needs more checks
             break;
         } else {
             if (debug) syslog(LOG_ERR, "Non-Sixaxis packet received and ignored (0x%02x|0x%02x|0x%02x)", buf[0], buf[1], buf[2]);

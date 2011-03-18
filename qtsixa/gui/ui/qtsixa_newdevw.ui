@@ -277,7 +277,7 @@ First, select one at the combo-box bellow:</string>
       <item>
        <widget class="QCheckBox" name="ch_timeout">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Auto-disconnect device when unused for:</string>
@@ -601,12 +601,12 @@ Use only 'Input' if you really need the Sixaxis to control the mouse.</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>331</y>
+     <x>271</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
-     <x>590</x>
-     <y>333</y>
+     <x>365</x>
+     <y>346</y>
     </hint>
    </hints>
   </connection>

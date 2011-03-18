@@ -22,20 +22,30 @@
 #include <cstring>
 #include <fcntl.h>
 #include <syslog.h>
-#include <sys/socket.h>
 #include <unistd.h>
+#include <sys/socket.h>
 
+volatile bool __active = false;
 volatile bool __io_canceled = false;
+
+bool was_active()
+{
+  return __active;
+}
+
+void set_active(bool active)
+{
+  __active = active;
+}
 
 bool io_canceled()
 {
   return __io_canceled;
 }
 
-void sig_term(int sig)
+void sig_term(int /* sig */)
 {
     __io_canceled = true;
-    sig = 0; //happy gcc
 }
 
 void open_log(const char *app_name)

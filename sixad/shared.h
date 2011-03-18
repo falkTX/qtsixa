@@ -64,6 +64,9 @@ struct device_settings {
     struct dev_timeout timeout;
 };
 
+bool was_active();
+void set_active(bool active);
+
 bool io_canceled();
 void sig_term(int sig);
 void open_log(const char *app_name);

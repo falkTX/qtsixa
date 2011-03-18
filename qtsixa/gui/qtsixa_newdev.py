@@ -35,6 +35,8 @@ class NewDevW(QWizard, ui_qtsixa_newdevw.Ui_NewDevW):
           self.ch_led.setEnabled(False)
           self.ch_rumble.setChecked(False)
           self.ch_rumble.setEnabled(False)
+          self.ch_timeout.setChecked(False)
+          self.ch_timeout.setEnabled(False)
 
         profs = os.listdir(os.getenv("HOME")+"/.qtsixa2/profiles/")
         profList = []
