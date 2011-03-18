@@ -38,6 +38,14 @@ exit
 fi
 }
 
+boot_yes_check () {
+if [ -f /etc/arch-release ]; then
+cat /etc/rc.conf | grep sixad > /dev/null
+else
+ls /etc/rc2.d/S90sixad > /dev/null
+fi
+}
+
 sixad_already_running_check () {
 ps -e | grep sixad-bin > /dev/null
 }
@@ -113,6 +121,7 @@ if (start_by_udev_q "$1"); then
 
 { #Full _start
 if (bluetoothd_check "$1"); then pkill -KILL bluetoothd; fi
+/usr/sbin/hcid
 if (sixad_already_running_check "$1"); then true
 else
   DEBUG=1
@@ -120,8 +129,7 @@ else
   date >> /var/log/sixad.log
   /usr/sbin/sixad-bin $DEBUG $LEGACY &>> /var/log/sixad.log
 fi
-/usr/sbin/hcid
-if [ ! -f /etc/rc2.d/S90sixad ]; then
+if (boot_yes_check "$1"); then true; else
   sleep 10 # wait for device to connect
   pkill -KILL hcid
 fi
