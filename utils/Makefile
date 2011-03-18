@@ -21,8 +21,8 @@ install:
 	install -d $(DESTDIR)/usr/bin/
 	install -d $(DESTDIR)/usr/sbin/
 	install -m 655 bins/sixad-jack $(DESTDIR)/usr/bin/
-	install -m 655 bins/sixpair $(DESTDIR)/usr/bin/
-	install -m 655 bins/sixpair-kbd $(DESTDIR)/usr/bin/
+	install -m 655 bins/sixpair $(DESTDIR)/usr/sbin/
+	install -m 655 bins/sixpair-kbd $(DESTDIR)/usr/sbin/
 	install -m 655 bins/hcid $(DESTDIR)/usr/sbin/
 	install -m 655 bins/hidraw-dump $(DESTDIR)/usr/sbin/
 
