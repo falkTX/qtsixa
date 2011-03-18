@@ -22,8 +22,9 @@ common_so:
 	$(CC) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./mod $(INCLUDES) $(CFLAGS) $(PKG_FLAGS) -c common/hal-dummy.c
 	$(CC) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./mod $(INCLUDES) $(CFLAGS) $(PKG_FLAGS) -c common/notify-inotify.c
 	rm -f libhelper.a
-	ar cru libhelper.a oui.o dbus.o textfile.o logging.o dbus-helper.o error.o sdp-xml.o sdp-glib.o hal-dummy.o notify-inotify.o 
+	ar cru libhelper.a oui.o dbus.o textfile.o logging.o dbus-helper.o error.o sdp-xml.o sdp-glib.o hal-dummy.o notify-inotify.o
 	ranlib libhelper.a
+	touch common_so
 
 sdpd_so:
 	$(CC) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./mod $(INCLUDES) $(CFLAGS) $(PKG_FLAGS) -c sdpd/server.c
@@ -34,6 +35,7 @@ sdpd_so:
 	rm -f libsdpserver.a
 	ar cru libsdpserver.a server.o cstate.o request.o service.o servicedb.o
 	ranlib libsdpserver.a
+	touch sdpd_so
 
 dbus_so:
 	$(CC) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod $(INCLUDES) $(CFLAGS) $(PKG_FLAGS) -c security.c
@@ -56,10 +58,12 @@ dbus_so:
 	rm -f libhciserver.a
 	ar cru libhciserver.a security.o storage.o parser.o lexer.o kword.o server.o manager.o adapter.o device.o dbus-common.o dbus-error.o dbus-database.o dbus-security.o dbus-service.o dbus-test.o dbus-hci.o dbus-sdp.o
 	ranlib libhciserver.a
+	touch dbus_so
 
-main_so:
+main_so: common_so sdpd_so dbus_so
 	$(CC) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I. -I./common -I./sdpd -I./mod $(INCLUDES) $(CFLAGS) $(PKG_FLAGS) -c main.c
 	$(CC) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -o ../bins/hcid main.o libhciserver.a ./libsdpserver.a ./libhelper.a -lbluetooth -ldbus-1 -lglib-2.0 $(INCLUDES) $(CFLAGS) $(PKG_FLAGS) $(LDFLAGS)
+	touch main_so
 
 clean:
 	rm -rf *.o *.a hcid
