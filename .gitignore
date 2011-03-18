@@ -1,0 +1,10 @@
+*~
+.directory
+
+
+*.o
+*.a
+
+qtsixa/gui/qtsixa_rc.py
+qtsixa/gui/ui_*.py
+utils/bins/*
