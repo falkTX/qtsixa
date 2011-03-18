@@ -127,7 +127,7 @@ else
   DEBUG=1
   /sbin/modprobe uinput
   date >> /var/log/sixad.log
-  /usr/sbin/sixad-bin $DEBUG $LEGACY &>> /var/log/sixad.log
+  /usr/sbin/sixad-bin $DEBUG $LEGACY &>> /var/log/sixad.log &
 fi
 if (boot_yes_check "$1"); then true; else
   sleep 10 # wait for device to connect
