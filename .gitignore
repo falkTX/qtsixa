@@ -7,4 +7,6 @@
 
 qtsixa/gui/qtsixa_rc.py
 qtsixa/gui/ui_*.py
+sixad/bins/*
 utils/bins/*
+utils/hcid/*_so
