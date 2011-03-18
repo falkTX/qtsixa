@@ -10,10 +10,10 @@ all: tools hcid_bin
 
 tools:
 	$(CC) $(CFLAGS) $(LDFLAGS) hidraw-dump.c -o bins/hidraw-dump
-	$(CC) $(CFLAGS) $(LDFLAGS) sixpair.c -o bins/sixpair -lusb -I/usr/include/libusb-1.0/
-	$(CC) $(CFLAGS) $(LDFLAGS) sixpair_kbd.c -o bins/sixpair-kbd -lusb -I/usr/include/libusb-1.0/
+	$(CC) $(CFLAGS) $(LDFLAGS) sixpair.c -o bins/sixpair `pkg-config --cflags --libs libusb`
+	$(CC) $(CFLAGS) $(LDFLAGS) sixpair_kbd.c -o bins/sixpair-kbd `pkg-config --cflags --libs libusb`
 ifeq ($(WANT_JACK),true)
-	$(CC) $(CFLAGS) $(LDFLAGS) sixad-jack.c -o bins/sixad-jack -ljack -lm
+	$(CC) $(CFLAGS) $(LDFLAGS) sixad-jack.c -o bins/sixad-jack `pkg-config --cflags --libs jack` -lm # -lm for broken gcc4.6
 endif
 
 hcid_bin:
