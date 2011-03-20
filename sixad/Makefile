@@ -1,7 +1,7 @@
 # You know, there are pre-compile DEBs of this...
 
-CXX = g++
-CXXFLAGS = -O2 -Wall
+CXX ?= g++
+CXXFLAGS ?= -O2 -Wall
 LDFLAGS += -Wl,-Bsymbolic-functions
 
 all: sixad_bins

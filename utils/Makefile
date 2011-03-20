@@ -1,7 +1,7 @@
 # You know, there are pre-compile DEBs of this...
 
-CC = gcc
-CFLAGS = -O2 -Wall
+CC ?= gcc
+CFLAGS ?= -O2 -Wall
 LDFLAGS += -Wl,-Bsymbolic-functions
 
 WANT_JACK = true
@@ -13,7 +13,7 @@ tools:
 	$(CC) $(CFLAGS) $(LDFLAGS) sixpair.c -o bins/sixpair `pkg-config --cflags --libs libusb`
 	$(CC) $(CFLAGS) $(LDFLAGS) sixpair_kbd.c -o bins/sixpair-kbd `pkg-config --cflags --libs libusb`
 ifeq ($(WANT_JACK),true)
-	$(CC) $(CFLAGS) $(LDFLAGS) sixad-jack.c -o bins/sixad-jack `pkg-config --cflags --libs jack` -lm # -lm for broken gcc4.6
+	$(CC) $(CFLAGS) $(LDFLAGS) sixad-jack.c -o bins/sixad-jack `pkg-config --cflags --libs jack` -lm
 endif
 
 hcid_bin:
@@ -36,7 +36,7 @@ endif
 
 uninstall:
 	rm -f $(DESTDIR)/usr/bin/sixad-jack
-	rm -f $(DESTDIR)/usr/sbin/sixpair
-	rm -f $(DESTDIR)/usr/sbin/sixpair-kbd
 	rm -f $(DESTDIR)/usr/sbin/hcid
 	rm -f $(DESTDIR)/usr/sbin/hidraw-dump
+	rm -f $(DESTDIR)/usr/sbin/sixpair
+	rm -f $(DESTDIR)/usr/sbin/sixpair-kbd
