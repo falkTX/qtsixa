@@ -61,7 +61,7 @@ dbus_so:
 
 main_so: common_so sdpd_so dbus_so
 	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I. -I./common -I./sdpd -I./mod -c main.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $(PKG_FLAGS) $(PKG_LIBS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -o ../bins/hcid main.o libhciserver.a ./libsdpserver.a ./libhelper.a
+	$(CC) $(CFLAGS) $(LDFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -o ../bins/hcid main.o libhciserver.a ./libsdpserver.a ./libhelper.a $(PKG_LIBS)
 	touch main_so
 
 clean:

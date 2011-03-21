@@ -112,7 +112,7 @@ struct device_settings init_values(const char *addr)
         settings.rumble.enabled = textfile_get_int(pathname, "enable_rumble", 1);
         settings.rumble.old_mode = textfile_get_int(pathname, "old_rumble_mode", 0);
 
-        settings.timeout.enabled = textfile_get_int(pathname, "enable_timeout", 0);
+        settings.timeout.enabled = textfile_get_int(pathname, "enable_timeout", 1);
         settings.timeout.timeout = textfile_get_int(pathname, "timeout_mins", 30);
 
     } else if (open("/var/lib/sixad/profiles/default", O_RDONLY) > 0) { //default config
@@ -166,7 +166,7 @@ struct device_settings init_values(const char *addr)
         settings.rumble.enabled = textfile_get_int(pathname, "enable_rumble", 1);
         settings.rumble.old_mode = textfile_get_int(pathname, "old_rumble_mode", 0);
 
-        settings.timeout.enabled = textfile_get_int(pathname, "enable_timeout", -1);
+        settings.timeout.enabled = textfile_get_int(pathname, "enable_timeout", 1);
         settings.timeout.timeout = textfile_get_int(pathname, "timeout_mins", 30);
 
     } else { // no config
@@ -219,7 +219,7 @@ struct device_settings init_values(const char *addr)
         settings.rumble.enabled = 1;
         settings.rumble.old_mode = 0;
 
-        settings.timeout.enabled = 0;
+        settings.timeout.enabled = 1;
         settings.timeout.timeout = 30;
 
     }
@@ -230,10 +230,10 @@ struct device_settings init_values(const char *addr)
 int get_joystick_number()
 {
     int i, js;
-    char jspath[64];
+    char jspath[16];
 
     js = 1;
-    for (i=0; i < 8; i++) {
+    for (i=0; i < 10; i++) {
         snprintf(jspath, sizeof(jspath), "/dev/input/js%i", i);
         if (open(jspath, O_RDONLY) > 0) {
             js = i+1;

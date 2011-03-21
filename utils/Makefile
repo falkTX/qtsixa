@@ -9,6 +9,7 @@ WANT_JACK = true
 all: tools hcid_bin
 
 tools:
+	mkdir -p bins
 	$(CC) $(CFLAGS) $(LDFLAGS) hidraw-dump.c -o bins/hidraw-dump
 	$(CC) $(CFLAGS) $(LDFLAGS) sixpair.c -o bins/sixpair `pkg-config --cflags --libs libusb`
 	$(CC) $(CFLAGS) $(LDFLAGS) sixpair_kbd.c -o bins/sixpair-kbd `pkg-config --cflags --libs libusb`
