@@ -33,7 +33,7 @@ fi
 bt_device_check () {
 if (hciconfig dev &> /dev/null); then true; else
 echo "No bluetooth adapters found on the system!
-sixad will not quit"
+sixad will now quit"
 exit
 fi
 }
