@@ -31,10 +31,17 @@ fi
 }
 
 bt_device_check () {
+if (which hciconfig); then
+{ #1
 if (hciconfig dev &> /dev/null); then true; else
 echo "No bluetooth adapters found on the system!
 sixad will now quit"
 exit
+fi
+} #2
+else
+# no hciconfig means no bluez installed, hurray!
+false
 fi
 }
 
@@ -105,21 +112,20 @@ fi
   ;;
 
   --force|-force|force|-f)  #Used for QtSixA GUI
-bt_device_check
+bt_device_check && using_old_bt_ver
 echo "sixad has been forced to start.
 bluetooth will not be operational in this mode"
 if (bluetoothd_check "$1"); then sudo pkill -KILL bluetoothd; fi
 sudo /usr/sbin/hcid
 if (sixad_already_running_check "$1"); then true
 else
-  using_old_bt_ver
   /sbin/modprobe uinput
   /usr/sbin/sixad-bin $DEBUG $LEGACY
 fi
   ;;
 
   --stop|-stop|stop)
-sudo pkill -KILL sixad-uinput-sixaxis
+sudo pkill -KILL sixad-sixaxis
 sudo pkill -TERM sixad-bin
 sudo pkill -KILL hcid
 if (bluetoothd_check "$1"); then true; else bt_start; fi
@@ -150,7 +156,7 @@ fi
   ;;
 
   --start|-start|start|-s)
-bt_device_check
+bt_device_check && using_old_bt_ver
 if (sixad_already_running_check "$1"); then
 echo "sixad is already running.
 run 'sixad --stop' to stop it"
@@ -159,7 +165,6 @@ else
  if (modprobe_check "$1"); then  #Check for root access before running, If NO access, quit
   { #3
   if (bluetoothd_check "$1"); then sudo pkill -KILL bluetoothd; fi
-  using_old_bt_ver
   sudo /usr/sbin/hcid
   sudo /usr/sbin/sixad-bin $DEBUG $LEGACY
    } #3
