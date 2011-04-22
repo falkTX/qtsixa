@@ -22,11 +22,24 @@
 #include <iostream>
 #include <signal.h>
 
+// Globals, needed for search thread
+int ctl;
+bdaddr_t bdaddr;
+
+void do_search_thread()
+{
+    while (!io_canceled()) {
+        do_search(ctl, &bdaddr);
+        usleep(3000);
+    }
+    pthread_exit((void*)1);
+}
+
 int main(int argc, char *argv[])
 {
     struct sigaction sa;
-    bdaddr_t bdaddr;
-    int ctl, csk, isk, debug, legacy;
+    pthread_t search_thread;
+    int csk, isk, debug, legacy;
 
     if (argc > 2) {
       debug = atoi(argv[1]);
@@ -73,11 +86,25 @@ int main(int argc, char *argv[])
     sigaction(SIGCHLD, &sa, NULL);
     sigaction(SIGPIPE, &sa, NULL);
 
+    if (pthread_create(&search_thread, NULL, (void *(*)(void *))do_search_thread, NULL)) {
+        std::cerr << "error starting uinput listen thread" << std::endl;
+        return 1;
+    }
+
     std::cout << "sixad started, press the PS button now" << std::endl;
 
     hid_server(ctl, csk, isk, debug, legacy);
 
     std::cout << "Exit" << std::endl;
+    
+    sig_term(0);
+
+    if (pthread_cancel(search_thread)) {
+        std::cerr << "Error canceling search thread" << std::endl;
+    }
+    else if (pthread_join(search_thread, NULL)) {
+        std::cerr << "Error joining search thread" << std::endl;
+    }
 
     close(isk);
     close(csk);

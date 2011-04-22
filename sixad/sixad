@@ -31,9 +31,9 @@ fi
 }
 
 bt_device_check () {
-if (which hciconfig); then
+if (which hciconfig > /dev/null); then
 { #1
-if (hciconfig dev &> /dev/null); then true; else
+if (hciconfig dev > /dev/null); then true; else
 echo "No bluetooth adapters found on the system!
 sixad will now quit"
 exit

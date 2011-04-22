@@ -1,6 +1,6 @@
 # Compile hcid binary only
 
-CC ?= gcc
+CC ?= gcc-4.4
 CFLAGS ?= -O2 -Wall
 LDFLAGS += -Wl,-Bsymbolic-functions
 
@@ -51,7 +51,7 @@ dbus_so:
 	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod -c dbus-database.c
 	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod -c dbus-security.c
 	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod -c dbus-service.c
-	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod -fno-strict-aliasing -c dbus-test.c
+	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod -c dbus-test.c -fno-strict-aliasing
 	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod -c dbus-hci.c
 	$(CC) $(CFLAGS) $(PKG_FLAGS) -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I./common -I./sdpd -I./mod -c dbus-sdp.c
 	rm -f libhciserver.a

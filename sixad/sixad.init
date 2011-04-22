@@ -44,7 +44,7 @@ fi
       log_warning_msg "sixad is not running"
     fi
     ;;
-  restart|force-reload)
+  restart)
     $0 stop
     $0 start
     ;;
@@ -52,7 +52,7 @@ fi
     status_of_proc "sixad-bin" "sixad" && exit 0 || exit $?
     ;;
   *)
-    echo "Usage: /etc/init.d/sixad {start|stop|restart|force-reload|status}" >&2
+    echo "Usage: /etc/init.d/sixad {start|stop|restart|status}" >&2
     exit 1
     ;;
 esac

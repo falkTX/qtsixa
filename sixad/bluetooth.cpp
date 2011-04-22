@@ -29,6 +29,69 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 
+void do_search(int ctl, bdaddr_t *bdaddr)
+{
+#if 0
+        inquiry_info *info = NULL;
+        bdaddr_t src, dst;
+        int i, dev_id, num_rsp, length, flags;
+        char addr[18];
+        uint8_t class[3];
+
+        ba2str(bdaddr, addr);
+        dev_id = hci_devid(addr);
+        if (dev_id < 0) {
+                dev_id = hci_get_route(NULL);
+                hci_devba(dev_id, &src);
+        } else
+                bacpy(&src, bdaddr);
+
+        length  = 8;    /* ~10 seconds */
+        num_rsp = 0;
+        flags   = IREQ_CACHE_FLUSH;
+
+        printf("Searching ...\n");
+
+        num_rsp = hci_inquiry(dev_id, length, num_rsp, NULL, &info, flags);
+
+        for (i = 0; i < num_rsp; i++) {
+                memcpy(class, (info+i)->dev_class, 3);
+                if (class[1] == 0x25 && (class[2] == 0x00 || class[2] == 0x01)) {
+                        bacpy(&dst, &(info+i)->bdaddr);
+                        ba2str(&dst, addr);
+
+                        printf("\tConnecting to device %s\n", addr);
+                        do_connect(ctl, &src, &dst, subclass, fakehid, bootonly, encrypt, timeout);
+                }
+        }
+
+        if (!fakehid)
+                goto done;
+
+        for (i = 0; i < num_rsp; i++) {
+                memcpy(class, (info+i)->dev_class, 3);
+                if ((class[0] == 0x00 && class[2] == 0x00 &&
+                                (class[1] == 0x40 || class[1] == 0x1f)) ||
+                                (class[0] == 0x10 && class[1] == 0x02 && class[2] == 0x40)) {
+                        bacpy(&dst, &(info+i)->bdaddr);
+                        ba2str(&dst, addr);
+
+                        printf("\tConnecting to device %s\n", addr);
+                        do_connect(ctl, &src, &dst, subclass, 1, bootonly, 0, timeout);
+                }
+        }
+
+done:
+        bt_free(info);
+
+        if (!num_rsp) {
+                fprintf(stderr, "\tNo devices in range or visible\n");
+                close(ctl);
+                exit(1);
+        }
+#endif
+}
+
 int l2cap_listen(const bdaddr_t *bdaddr, unsigned short psm, int lm, int backlog)
 {
     struct sockaddr_l2 addr;
