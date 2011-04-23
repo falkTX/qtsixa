@@ -2,7 +2,7 @@
  * textfile.cpp
  *
  * This file is part of the QtSixA, the Sixaxis Joystick Manager
- * Copyright 2008-10 Filipe Coelho <falktx@gmail.com>
+ * Copyright 2008-2010 Filipe Coelho <falktx@gmail.com>
  *
  * QtSixA can be redistributed and/or modified under the terms of the GNU General
  * Public License (Version 2), as published by the Free Software Foundation.

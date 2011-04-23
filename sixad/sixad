@@ -5,6 +5,7 @@
 
 DEBUG=0
 LEGACY=0
+REMOTE=0
 
 . /etc/default/sixad
 
@@ -120,7 +121,7 @@ sudo /usr/sbin/hcid
 if (sixad_already_running_check "$1"); then true
 else
   /sbin/modprobe uinput
-  /usr/sbin/sixad-bin $DEBUG $LEGACY
+  /usr/sbin/sixad-bin $DEBUG $LEGACY $REMOTE
 fi
   ;;
 
@@ -143,7 +144,7 @@ else
   DEBUG=1
   /sbin/modprobe uinput
   date >> /var/log/sixad.log
-  /usr/sbin/sixad-bin $DEBUG $LEGACY &>> /var/log/sixad.log &
+  /usr/sbin/sixad-bin $DEBUG $LEGACY $REMOTE &>> /var/log/sixad.log &
 fi
 if (boot_yes_check "$1"); then true; else
   sleep 10 # wait for device to connect
@@ -166,13 +167,29 @@ else
   { #3
   if (bluetoothd_check "$1"); then sudo pkill -KILL bluetoothd; fi
   sudo /usr/sbin/hcid
-  sudo /usr/sbin/sixad-bin $DEBUG $LEGACY
+  sudo /usr/sbin/sixad-bin $DEBUG $LEGACY $REMOTE
    } #3
  else
   echo "You need admin/root access to run this application"
  fi
 } #2
 fi
+  ;;
+
+  --remote)
+REMOTE=1
+bt_device_check && using_old_bt_ver
+{ #2
+ if (modprobe_check "$1"); then  #Check for root access before running, If NO access, quit
+  { #3
+  if (bluetoothd_check "$1"); then sudo pkill -KILL bluetoothd; fi
+  sudo /usr/sbin/hcid
+  sudo /usr/sbin/sixad-bin $DEBUG $LEGACY $REMOTE
+   } #3
+ else
+  echo "You need admin/root access to run this application"
+ fi
+} #2
   ;;
 
     --version|-version|version|-v)
@@ -195,6 +212,8 @@ command can be:
     -s, --start		Start sixad
     -f, --force		Force connection (and starts sixad if not running)
 	--stop		Stop sixad
+
+	--remote	BD Remote mode
 
 	--boot-yes	Auto-starts sixad at boot time
 	--boot-no	Does not auto-start sixad at boot time

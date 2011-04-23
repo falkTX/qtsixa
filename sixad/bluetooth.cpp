@@ -23,6 +23,7 @@
 #include <iostream>
 #include <poll.h>
 #include <signal.h>
+#include <syslog.h>
 #include <sys/ioctl.h>
 
 #include <bluetooth/hidp.h>
@@ -46,11 +47,11 @@ void do_search(int ctl, bdaddr_t *bdaddr, int debug)
         } else
                 bacpy(&src, bdaddr);
 
-        length  = 4;    /* ~5 seconds */
+        length  = 8;    /* ~10 seconds */
         num_rsp = 0;
         flags   = IREQ_CACHE_FLUSH;
 
-        if (debug) std::cout << "Searching..." << std::endl;
+        if (debug) syslog(LOG_INFO, "Searching...");
 
         num_rsp = hci_inquiry(dev_id, length, num_rsp, NULL, &info, flags);
 
@@ -60,7 +61,7 @@ void do_search(int ctl, bdaddr_t *bdaddr, int debug)
                         bacpy(&dst, &(info+i)->bdaddr);
                         ba2str(&dst, addr);
 
-                        if (debug) std::cout << "Connecting to device " << addr << std::endl;
+                        if (debug) syslog(LOG_INFO, "Connecting to device %s", addr);
                         do_connect(ctl, &src, &dst, debug);
                 }
         }
@@ -68,7 +69,7 @@ void do_search(int ctl, bdaddr_t *bdaddr, int debug)
         bt_free(info);
 
         if (!num_rsp) {
-                if (debug) std::cerr << "No devices in range or visible" << std::endl;
+                if (debug) syslog(LOG_ERR, "No devices in range or visible");
         }
 }
 
@@ -85,58 +86,46 @@ void do_connect(int ctl, bdaddr_t *src, bdaddr_t *dst, int debug)
         err = get_sdp_device_info(src, dst, &req);
 
         if (err < 0) {
-                std::cerr << "Can't get device information" << std::endl;
+                syslog(LOG_ERR, "Can't get device information");
                 return;
         }
 
         if (uuid == HID_SVCLASS_ID && req.vendor == 0x054c && req.product == 0x0306) {
             csk = l2cap_connect(src, dst, L2CAP_PSM_HIDP_CTRL);
             if (csk < 0) {
-                    std::cerr << "Can't create HID control channel" << std::endl;
+                    syslog(LOG_ERR, "Can't create HID control channel");
                     return;
             }
 
             isk = l2cap_connect(src, dst, L2CAP_PSM_HIDP_INTR);
             if (isk < 0) {
-                    std::cerr << "Can't create HID interrupt channel" << std::endl;
+                    syslog(LOG_ERR, "Can't create HID interrupt channel");
                     close(csk);
                     return;
             }
 
-            if (debug) std::cout << "Will initiate Remote now" << std::endl;
+            if (debug) syslog(LOG_INFO, "Will initiate Remote now");
 
             dup2(isk, 1);
             close(isk);
             dup2(csk, 0);
             close(csk);
-            
-            const char* remote_cmd = "/home/falktx/Personal/FOSS/GIT/qtsixa/sixad/bins/sixad-remote";
-            const char* debug_mode = debug ? "1" : "0";
-            
+
             char bda[18];
-            ba2str((const bdaddr_t*)&dst, bda);
+            ba2str(dst, bda);
 
-            const char *argv[] = { remote_cmd, bda, debug_mode, NULL };
+            char cmd[64];
+            strcpy(cmd, "/usr/sbin/sixad-remote ");
+            strcat(cmd, bda);
+            strcat(cmd, " ");
+            strcat(cmd, debug ? "1" : "0");
 
-            std::cout << "Connected PLAYSTATION(R)3 Remote (" << bda << ")" << std::endl;
-
-            if (execve(argv[0], (char* const*)argv, NULL) < 0) {
-                std::cerr << "cannot exec " << remote_cmd << std::endl;
-                close(1);
-                close(0);
+            if (!system(cmd)) {
+                syslog(LOG_INFO, "cannot exec '%s'", cmd);
             }
 
-//             err = create_device(ctl, csk, isk);
-//             if (err < 0) {
-//                     std::cerr << "HID create error " << errno << "(" << strerror(errno) << ")" << std::endl;
-//                     close(isk);
-//                     sleep(1);
-//                     close(csk);
-//                     return;
-//             }
-
         } else {
-            std::cerr << "device ID failed -> " << uuid << " : " << req.vendor << " : " << req.product << " : " << std::endl;
+            syslog(LOG_ERR, "device ID failed -> %04i, 0x%03X:0x%03X", uuid, req.vendor, req.product);
         }
 }
 
@@ -188,25 +177,25 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
     addrlen = sizeof(addr);
 
     if ((ctrl_socket = accept(csk, (struct sockaddr *)&addr, &addrlen)) < 0) {
-        std::cerr << "unable to accept control stream" << std::endl;
+        syslog(LOG_ERR, "unable to accept control stream");
         return;
     }
     bacpy(&addr_dst, &addr.l2_bdaddr);
 
     if (getsockname(ctrl_socket, (struct sockaddr *)&addr, &addrlen) < 0) {
-        std::cerr << "unable to get socket name from control stream" << std::endl;
+        syslog(LOG_ERR, "unable to get socket name from control stream");
         return;
     }
     bacpy(&addr_src, &addr.l2_bdaddr);
 
     if ((intr_socket = accept(isk, (struct sockaddr *)&addr, &addrlen)) < 0) {
-        std::cerr << "unable to accept info stream" << std::endl;
+        syslog(LOG_ERR, "unable to accept info stream");
         close(ctrl_socket);
         return;
     }
 
     if (bacmp(&addr_dst, &addr.l2_bdaddr)) {
-        std::cerr << "intr and ctrl streams from different hosts - rejecting both" << std::endl;
+        syslog(LOG_ERR, "intr and ctrl streams from different hosts - rejecting both");
         close(ctrl_socket);
         close(intr_socket);
         return;
@@ -215,37 +204,34 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
     get_sdp_device_info(&addr_src, &addr_dst, &req);
 
     if (!legacy && req.vendor == 0x054c && req.product == 0x0268) {
-        if (debug) std::cout << "Will initiate Sixaxis now" << std::endl;
-
-        char bda[18];
-        ba2str(&addr_dst, bda);
-
-        const char *uinput_sixaxis_cmd = "/usr/sbin/sixad-sixaxis";
-        const char *debug_mode = debug ? "1" : "0";
+        if (debug) syslog(LOG_INFO, "Will initiate Sixaxis now");
 
         dup2(intr_socket, 1);
         close(intr_socket);
         dup2(ctrl_socket, 0);
         close(ctrl_socket);
 
-        close(isk);
-        close(csk);
-        close(ctl);
+        // New proccess for sixad-sixaxis
+        if (fork()) {
+            char bda[18];
+            ba2str(&addr_dst, bda);
 
-        const char *argv[] = { uinput_sixaxis_cmd, bda, debug_mode, NULL };
+            char cmd[64];
+            strcpy(cmd, "/usr/sbin/sixad-sixaxis ");
+            strcat(cmd, bda);
+            strcat(cmd, " ");
+            strcat(cmd, debug ? "1" : "0");
 
-        std::cout << "Connected PLAYSTATION(R)3 Controller (" << bda << ")" << std::endl;
-
-        if (execve(argv[0], (char* const*)argv, NULL) < 0) {
-            std::cerr << "cannot exec " << uinput_sixaxis_cmd << std::endl;
-            close(1);
-            close(0);
+            if (!system(cmd)) {
+                syslog(LOG_INFO, "cannot exec '%s'", cmd);
+            }
         }
+
     } else {
-        if (debug) std::cout << "Creating new device using the default driver..." << std::endl;
+        if (debug) syslog(LOG_INFO, "Creating new device using the default driver...");
         err = create_device(ctl, ctrl_socket, intr_socket);
         if (err < 0)
-            std::cerr << "HID create error " << errno << "(" << strerror(errno) << ")" << std::endl;
+            syslog(LOG_ERR, "HID create error %d (%s)", errno, strerror(errno));
         close(intr_socket);
         sleep(1);
         close(ctrl_socket);
@@ -305,7 +291,7 @@ void hid_server(int ctl, int csk, int isk, int debug, int legacy)
     sigdelset(&sigs, SIGINT);
     sigdelset(&sigs, SIGHUP);
 
-    if (debug) std::cout << "Server mode active, will start search now" << std::endl;
+    if (debug) syslog(LOG_INFO, "Server mode active, will start search now");
 
     p[0].fd = csk;
     p[0].events = POLLIN | POLLERR | POLLHUP;
@@ -328,13 +314,13 @@ void hid_server(int ctl, int csk, int isk, int debug, int legacy)
         events = p[0].revents | p[1].revents;
 
         if (events & POLLIN) {
-            if (debug) std::cout << "One event received" << std::endl;
+            if (debug) syslog(LOG_INFO, "One event received");
             l2cap_accept(ctl, csk, isk, debug, legacy);
-            if (debug) std::cout << "One event proccessed" << std::endl;
+            if (debug) syslog(LOG_INFO, "One event proccessed");
         }
 
         if (events & (POLLERR | POLLHUP)) {
-            if (debug) std::cerr << "Server mode loop was broken" << std::endl;
+            if (debug) syslog(LOG_ERR, "Server mode loop was broken");
             break;
         }
 
@@ -377,7 +363,7 @@ int create_device(int ctl, int csk, int isk)
          return err;
      else {
          ba2str(&dst, bda);
-         std::cout << "Connected " << req.name << " (" << bda << ")" << std::endl;
+         syslog(LOG_INFO, "Connected %s (%s)", req.name, bda);
          if (req.vendor == 0x054c && req.product == 0x0268)
              enable_sixaxis(csk);
          err = ioctl(ctl, HIDPCONNADD, &req);
@@ -401,7 +387,7 @@ int get_sdp_device_info(const bdaddr_t *src, const bdaddr_t *dst, struct hidp_co
 
     sdp_session = sdp_connect(src, dst, SDP_RETRY_IF_BUSY | SDP_WAIT_ON_CLOSE);
     if (!sdp_session) {
-        std::cerr << "unable to connect to sdp session" << std::endl;
+        syslog(LOG_ERR, "unable to connect to sdp session");
         return -1;
     }
 
@@ -434,7 +420,7 @@ int get_sdp_device_info(const bdaddr_t *src, const bdaddr_t *dst, struct hidp_co
     sdp_close(sdp_session);
 
     if (err || !hid_rsp) {
-        std::cerr << "unable to get device information" << std::endl;
+        syslog(LOG_ERR, "unable to get device information");
         return -1;
     }
 

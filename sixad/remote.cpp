@@ -2,7 +2,7 @@
  * remote.cpp
  *
  * This file is part of the QtSixA, the Sixaxis Joystick Manager
- * Copyright 2008-10 Filipe Coelho <falktx@gmail.com>
+ * Copyright 2008-11 Filipe Coelho <falktx@gmail.com>
  *
  * QtSixA can be redistributed and/or modified under the terms of the GNU General
  * Public License (Version 2), as published by the Free Software Foundation.
@@ -24,13 +24,114 @@
 #include <unistd.h>
 
 int b1, b2, b3;
+int last_b1 = 0xff;
+int last_key = -1;
+
+static int remote2key(int key, int modes) {
+    switch (key) {
+    // Numeric keys
+    case REMOTE_KEY_0:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_0 : 0;
+    case REMOTE_KEY_1:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_1 : 0;
+    case REMOTE_KEY_2:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_2 : 0;
+    case REMOTE_KEY_3:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_3 : 0;
+    case REMOTE_KEY_4:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_4 : 0;
+    case REMOTE_KEY_5:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_5 : 0;
+    case REMOTE_KEY_6:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_6 : 0;
+    case REMOTE_KEY_7:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_7 : 0;
+    case REMOTE_KEY_8:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_8 : 0;
+    case REMOTE_KEY_9:
+        return (modes & REMOTE_KEYMODE_NUMBERIC) ? KEY_9 : 0;
+
+    // DVD Keys
+    case REMOTE_KEY_CLEAR:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_CLEAR : 0;
+    case REMOTE_KEY_EJECT:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_EJECTCD : 0;
+    case REMOTE_KEY_TIME:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_TIME : 0;
+    case REMOTE_KEY_POP_UP_MENU:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_MENU : 0;
+    case REMOTE_KEY_SUBTITLE:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_SUBTITLE : 0;
+    case REMOTE_KEY_AUDIO:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_AUDIO : 0;
+    case REMOTE_KEY_ANGLE:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_ANGLE : 0;
+    case REMOTE_KEY_DISPLAY:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_SCREEN : 0;
+    case REMOTE_KEY_BLUE:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_BLUE : 0;
+    case REMOTE_KEY_RED:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_RED : 0;
+    case REMOTE_KEY_GREEN:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_GREEN : 0;
+    case REMOTE_KEY_YELLOW:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_YELLOW : 0;
+    case REMOTE_KEY_TOP_MENU:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_SETUP : 0;
+#if 0
+    case REMOTE_KEY_OPTIONS:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_ : 0;
+    case REMOTE_KEY_BACK:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_ : 0;
+    case REMOTE_KEY_VIEW:
+        return (modes & REMOTE_KEYMODE_DVD) ? KEY_ : 0;
+#endif
+
+    // Directional Keys
+    case REMOTE_KEY_ENTER:
+        return (modes & REMOTE_KEYMODE_DIRECTIONAL) ? KEY_ENTER : 0;
+    case REMOTE_KEY_RETURN:
+        return (modes & REMOTE_KEYMODE_DIRECTIONAL) ? KEY_BACKSPACE : 0;
+    case REMOTE_KEY_JS_UP:
+        return (modes & REMOTE_KEYMODE_DIRECTIONAL) ? KEY_UP : 0;
+    case REMOTE_KEY_JS_RIGHT:
+        return (modes & REMOTE_KEYMODE_DIRECTIONAL) ? KEY_RIGHT : 0;
+    case REMOTE_KEY_JS_DOWN:
+        return (modes & REMOTE_KEYMODE_DIRECTIONAL) ? KEY_DOWN : 0;
+    case REMOTE_KEY_JS_LEFT:
+        return (modes & REMOTE_KEYMODE_DIRECTIONAL) ? KEY_LEFT : 0;
+
+    // Multimedia Keys
+    case REMOTE_KEY_PREV:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_BACK : 0;
+    case REMOTE_KEY_NEXT:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_FORWARD : 0;
+    case REMOTE_KEY_PLAY:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_PLAY : 0;
+    case REMOTE_KEY_SCAN_PREV:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_REWIND : 0;
+    case REMOTE_KEY_SCAN_FORW:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_FASTFORWARD : 0;
+    case REMOTE_KEY_STOP:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_STOP : 0;
+    case REMOTE_KEY_PAUSE:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_PAUSE : 0;
+    case REMOTE_KEY_SLOW_PREV:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_FRAMEBACK : 0;
+    case REMOTE_KEY_SLOW_FORW:
+        return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_FRAMEFORWARD : 0;
+
+    default:
+        syslog(LOG_ERR, "Got unknown Remote key 0x%02x", key);
+        return 0;
+    }
+}
 
 void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
 {
-#if 0
-    b1 = buf[3];
-    b2 = buf[4];
-    b3 = buf[5];
+    b1 = buf[2];
+    b2 = buf[3];
+    b3 = buf[4];
 
     if (joystick.buttons) {
         //part1
@@ -74,22 +175,32 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
     }
 
     uinput_send(fd, EV_SYN, SYN_REPORT, 0);
-#endif
 }
 
-void do_remote(int fd, unsigned char* buf, struct dev_remote remote)
+void do_remote(int fd, unsigned char* buf, int modes)
 {
-#if 0
-    //TODO
-#endif
+    b1 = buf[5];
+
+    if (last_b1 != b1) {
+        if (b1 == 0xff) {
+            uinput_send(fd, EV_KEY, last_key, 0);
+        } else {
+            last_key = remote2key(b1, modes);
+            if (last_key > 0) {
+                uinput_send(fd, EV_KEY, last_key, 1);
+            }
+        }
+        set_active(true);
+    }
+
+    uinput_send(fd, EV_SYN, SYN_REPORT, 0);
 }
 
 void do_input(int fd, unsigned char* buf, struct dev_input input)
 {
-#if 0
-    b1 = buf[3];
-    b2 = buf[4];
-    b3 = buf[5];
+    b1 = buf[2];
+    b2 = buf[3];
+    b3 = buf[4];
 
     //part1
     if (input.key_select) uinput_send(fd, EV_KEY, input.key_select, b1 & 1);
@@ -131,5 +242,4 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
     }
 
     uinput_send(fd, EV_SYN, SYN_REPORT, 0);
-#endif
 }
