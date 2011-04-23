@@ -122,7 +122,6 @@ static int remote2key(int key, int modes) {
         return (modes & REMOTE_KEYMODE_MULTIMEDIA) ? KEY_FRAMEFORWARD : 0;
 
     default:
-        syslog(LOG_ERR, "Got unknown Remote key 0x%02x", key);
         return 0;
     }
 }
@@ -182,17 +181,18 @@ void do_remote(int fd, unsigned char* buf, int modes)
     b1 = buf[5];
 
     if (last_b1 != b1) {
-        if (b1 == 0xff) {
-            uinput_send(fd, EV_KEY, last_key, 0);
-        } else {
+        int x = 0;
+        if (b1 != 0xff) {
             last_key = remote2key(b1, modes);
             if (last_key > 0) {
-                uinput_send(fd, EV_KEY, last_key, 1);
+                x = 1;
             }
         }
+        uinput_send(fd, EV_KEY, last_key, x);
         set_active(true);
     }
 
+    last_b1 = b1;
     uinput_send(fd, EV_SYN, SYN_REPORT, 0);
 }
 
