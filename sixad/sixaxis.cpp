@@ -23,9 +23,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define INPUT_TYPE_KEYS 2
-#define INPUT_TYPE_MOUSE 3
-
 double dt, rc_dd, alpha_dd, rc_d, alpha_d, rc, alpha;
 
 struct state {

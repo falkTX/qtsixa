@@ -28,15 +28,15 @@
 #include <bluetooth/hidp.h>
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
+#include <bluetooth/hci_lib.h>
 
-void do_search(int ctl, bdaddr_t *bdaddr)
+void do_search(int ctl, bdaddr_t *bdaddr, int debug)
 {
-#if 0
         inquiry_info *info = NULL;
         bdaddr_t src, dst;
         int i, dev_id, num_rsp, length, flags;
         char addr[18];
-        uint8_t class[3];
+        uint8_t _class[3];
 
         ba2str(bdaddr, addr);
         dev_id = hci_devid(addr);
@@ -46,50 +46,98 @@ void do_search(int ctl, bdaddr_t *bdaddr)
         } else
                 bacpy(&src, bdaddr);
 
-        length  = 8;    /* ~10 seconds */
+        length  = 4;    /* ~5 seconds */
         num_rsp = 0;
         flags   = IREQ_CACHE_FLUSH;
 
-        printf("Searching ...\n");
+        if (debug) std::cout << "Searching..." << std::endl;
 
         num_rsp = hci_inquiry(dev_id, length, num_rsp, NULL, &info, flags);
 
         for (i = 0; i < num_rsp; i++) {
-                memcpy(class, (info+i)->dev_class, 3);
-                if (class[1] == 0x25 && (class[2] == 0x00 || class[2] == 0x01)) {
+                memcpy(_class, (info+i)->dev_class, 3);
+                if (_class[1] == 0x25 && (_class[2] == 0x00 || _class[2] == 0x01)) {
                         bacpy(&dst, &(info+i)->bdaddr);
                         ba2str(&dst, addr);
 
-                        printf("\tConnecting to device %s\n", addr);
-                        do_connect(ctl, &src, &dst, subclass, fakehid, bootonly, encrypt, timeout);
+                        if (debug) std::cout << "Connecting to device " << addr << std::endl;
+                        do_connect(ctl, &src, &dst, debug);
                 }
         }
 
-        if (!fakehid)
-                goto done;
-
-        for (i = 0; i < num_rsp; i++) {
-                memcpy(class, (info+i)->dev_class, 3);
-                if ((class[0] == 0x00 && class[2] == 0x00 &&
-                                (class[1] == 0x40 || class[1] == 0x1f)) ||
-                                (class[0] == 0x10 && class[1] == 0x02 && class[2] == 0x40)) {
-                        bacpy(&dst, &(info+i)->bdaddr);
-                        ba2str(&dst, addr);
-
-                        printf("\tConnecting to device %s\n", addr);
-                        do_connect(ctl, &src, &dst, subclass, 1, bootonly, 0, timeout);
-                }
-        }
-
-done:
         bt_free(info);
 
         if (!num_rsp) {
-                fprintf(stderr, "\tNo devices in range or visible\n");
-                close(ctl);
-                exit(1);
+                if (debug) std::cerr << "No devices in range or visible" << std::endl;
         }
-#endif
+}
+
+void do_connect(int ctl, bdaddr_t *src, bdaddr_t *dst, int debug)
+{
+        struct hidp_connadd_req req;
+        uint16_t uuid = HID_SVCLASS_ID;
+        char name[256];
+        int csk, isk, err;
+
+        memset(&req, 0, sizeof(req));
+        name[0] = '\0';
+
+        err = get_sdp_device_info(src, dst, &req);
+
+        if (err < 0) {
+                std::cerr << "Can't get device information" << std::endl;
+                return;
+        }
+
+        if (uuid == HID_SVCLASS_ID && req.vendor == 0x054c && req.product == 0x0306) {
+            csk = l2cap_connect(src, dst, L2CAP_PSM_HIDP_CTRL);
+            if (csk < 0) {
+                    std::cerr << "Can't create HID control channel" << std::endl;
+                    return;
+            }
+
+            isk = l2cap_connect(src, dst, L2CAP_PSM_HIDP_INTR);
+            if (isk < 0) {
+                    std::cerr << "Can't create HID interrupt channel" << std::endl;
+                    close(csk);
+                    return;
+            }
+
+            if (debug) std::cout << "Will initiate Remote now" << std::endl;
+
+            dup2(isk, 1);
+            close(isk);
+            dup2(csk, 0);
+            close(csk);
+            
+            const char* remote_cmd = "/home/falktx/Personal/FOSS/GIT/qtsixa/sixad/bins/sixad-remote";
+            const char* debug_mode = debug ? "1" : "0";
+            
+            char bda[18];
+            ba2str((const bdaddr_t*)&dst, bda);
+
+            const char *argv[] = { remote_cmd, bda, debug_mode, NULL };
+
+            std::cout << "Connected PLAYSTATION(R)3 Remote (" << bda << ")" << std::endl;
+
+            if (execve(argv[0], (char* const*)argv, NULL) < 0) {
+                std::cerr << "cannot exec " << remote_cmd << std::endl;
+                close(1);
+                close(0);
+            }
+
+//             err = create_device(ctl, csk, isk);
+//             if (err < 0) {
+//                     std::cerr << "HID create error " << errno << "(" << strerror(errno) << ")" << std::endl;
+//                     close(isk);
+//                     sleep(1);
+//                     close(csk);
+//                     return;
+//             }
+
+        } else {
+            std::cerr << "device ID failed -> " << uuid << " : " << req.vendor << " : " << req.product << " : " << std::endl;
+        }
 }
 
 int l2cap_listen(const bdaddr_t *bdaddr, unsigned short psm, int lm, int backlog)
@@ -199,9 +247,48 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
         if (err < 0)
             std::cerr << "HID create error " << errno << "(" << strerror(errno) << ")" << std::endl;
         close(intr_socket);
+        sleep(1);
         close(ctrl_socket);
     }
     return;
+}
+
+int l2cap_connect(bdaddr_t *src, bdaddr_t *dst, unsigned short psm)
+{
+        struct sockaddr_l2 addr;
+        struct l2cap_options opts;
+        int sk;
+
+        if ((sk = socket(PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP)) < 0)
+                return -1;
+
+        memset(&addr, 0, sizeof(addr));
+        addr.l2_family  = AF_BLUETOOTH;
+        bacpy(&addr.l2_bdaddr, src);
+
+        if (bind(sk, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+                close(sk);
+                return -1;
+        }
+
+        memset(&opts, 0, sizeof(opts));
+        opts.imtu = HIDP_DEFAULT_MTU;
+        opts.omtu = HIDP_DEFAULT_MTU;
+        opts.flush_to = 0xffff;
+
+        setsockopt(sk, SOL_L2CAP, L2CAP_OPTIONS, &opts, sizeof(opts));
+
+        memset(&addr, 0, sizeof(addr));
+        addr.l2_family  = AF_BLUETOOTH;
+        bacpy(&addr.l2_bdaddr, dst);
+        addr.l2_psm = htobs(psm);
+
+        if (connect(sk, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+                close(sk);
+                return -1;
+        }
+
+        return sk;
 }
 
 void hid_server(int ctl, int csk, int isk, int debug, int legacy)

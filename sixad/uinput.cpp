@@ -53,6 +53,17 @@ int uinput_open(int JS_TYPE, const char *mac, struct device_settings settings)
         dev.id.product = 0x0268;
         dev.id.version = 0x0100;
         dev.id.bustype = BUS_VIRTUAL;
+
+    } else if (JS_TYPE == JS_TYPE_REMOTE) {
+        strcpy(dev_name, "PLAYSTATION(R)3 Remote (");
+        strcat(dev_name, mac);
+        strcat(dev_name, ")");
+        snprintf(dev.name, sizeof(dev.name), "%s", dev_name);
+        dev.id.vendor = 0x054c;
+        dev.id.product = 0x0306;
+        dev.id.version = 0x0100;
+        dev.id.bustype = BUS_VIRTUAL;
+
     } else {
         strcpy(dev_name, "Unkown Device (");
         strcat(dev_name, mac);
@@ -120,7 +131,7 @@ int uinput_open(int JS_TYPE, const char *mac, struct device_settings settings)
 
     if (settings.input.enabled) {
         // enable all keys
-        for (i=KEY_RESERVED; i<KEY_WIMAX; i++) {
+        for (i=KEY_RESERVED+1; i<KEY_WIMAX; i++) {
             if (ioctl (fd, UI_SET_KEYBIT, i) < 0) {
                 syslog(LOG_ERR, "uinput_open()::ioctl(BTN_KEYBOARD) - failed to register key %i", i);
                 return -1;

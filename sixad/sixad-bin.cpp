@@ -23,14 +23,14 @@
 #include <signal.h>
 
 // Globals, needed for search thread
-int ctl;
+int ctl, debug;
 bdaddr_t bdaddr;
 
 void do_search_thread()
 {
     while (!io_canceled()) {
-        do_search(ctl, &bdaddr);
-        usleep(3000);
+        do_search(ctl, &bdaddr, debug);
+        usleep(1000);
     }
     pthread_exit((void*)1);
 }
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 {
     struct sigaction sa;
     pthread_t search_thread;
-    int csk, isk, debug, legacy;
+    int csk, isk, legacy;
 
     if (argc > 2) {
       debug = atoi(argv[1]);
@@ -93,7 +93,9 @@ int main(int argc, char *argv[])
 
     std::cout << "sixad started, press the PS button now" << std::endl;
 
-    hid_server(ctl, csk, isk, debug, legacy);
+//     while (!io_canceled()) {
+        hid_server(ctl, csk, isk, debug, legacy);
+//     }
 
     std::cout << "Exit" << std::endl;
     

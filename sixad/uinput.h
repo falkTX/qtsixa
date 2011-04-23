@@ -24,6 +24,7 @@
 #define MAX_RUMBLE_EFFECTS 16
 
 #define JS_TYPE_SIXAXIS 1
+#define JS_TYPE_REMOTE 2
 
 int uinput_open(int JS_TYPE, const char *mac, struct device_settings settings);
 int uinput_close(int fd, int debug=0);

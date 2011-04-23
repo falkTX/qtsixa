@@ -18,6 +18,9 @@
 #ifndef SIXAXIS_H
 #define SIXAXIS_H
 
+#define INPUT_TYPE_KEYS 2
+#define INPUT_TYPE_MOUSE 3
+
 struct rumble_effects {
     int id;
     int weak;
