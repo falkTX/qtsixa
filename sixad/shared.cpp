@@ -50,8 +50,7 @@ void sig_term(int /* sig */)
 
 void open_log(const char *app_name)
 {
-    int log_option = LOG_NDELAY | LOG_PID | LOG_PERROR;
-    openlog(app_name, log_option, LOG_DAEMON);
+    openlog(app_name, LOG_NDELAY|LOG_PID|LOG_PERROR, LOG_DAEMON);
 }
 
 struct device_settings init_values(const char *addr)
@@ -77,6 +76,12 @@ struct device_settings init_values(const char *addr)
         settings.joystick.accon = textfile_get_int(pathname, "enable_accon", 0);
         settings.joystick.speed = textfile_get_int(pathname, "enable_speed", 0);
         settings.joystick.pos = textfile_get_int(pathname, "enable_pos", 0);
+
+        settings.remote.enabled = textfile_get_int(pathname, "enable_remote", 1);
+        settings.remote.numeric = textfile_get_int(pathname, "remote_numberic", 1);
+        settings.remote.dvd = textfile_get_int(pathname, "remote_dvd", 1);
+        settings.remote.directional = textfile_get_int(pathname, "remote_directional", 1);
+        settings.remote.multimedia = textfile_get_int(pathname, "remote_multimedia", 1);
 
         settings.input.enabled = textfile_get_int(pathname, "enable_input", 0);
         settings.input.key_select = textfile_get_int(pathname, "key_select", 0);
@@ -132,6 +137,12 @@ struct device_settings init_values(const char *addr)
         settings.joystick.speed = textfile_get_int(pathname, "enable_speed", 0);
         settings.joystick.pos = textfile_get_int(pathname, "enable_pos", 0);
 
+        settings.remote.enabled = textfile_get_int(pathname, "enable_remote", 1);
+        settings.remote.numeric = textfile_get_int(pathname, "remote_numberic", 1);
+        settings.remote.dvd = textfile_get_int(pathname, "remote_dvd", 1);
+        settings.remote.directional = textfile_get_int(pathname, "remote_directional", 1);
+        settings.remote.multimedia = textfile_get_int(pathname, "remote_multimedia", 1);
+
         settings.input.enabled = textfile_get_int(pathname, "enable_input", 0);
         settings.input.key_select = textfile_get_int(pathname, "key_select", 0);
         settings.input.key_l3 = textfile_get_int(pathname, "key_l3", 0);
@@ -184,6 +195,12 @@ struct device_settings init_values(const char *addr)
         settings.joystick.accon = 0;
         settings.joystick.speed = 0;
         settings.joystick.pos = 0;
+
+        settings.remote.enabled = 1;
+        settings.remote.numeric = 1;
+        settings.remote.dvd = 1;
+        settings.remote.directional = 1;
+        settings.remote.multimedia = 1;
 
         settings.input.enabled = 0;
         settings.input.key_select = 0;

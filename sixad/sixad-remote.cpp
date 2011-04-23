@@ -27,13 +27,14 @@
 #include <time.h>
 #include <sys/socket.h>
 
-int fd;
 int csk = 0;
 int isk = 1;
 int debug;
 int timeout = 30;
 
 volatile bool active = false;
+
+struct uinput_fd ufd;
 
 static int get_time()
 {
@@ -45,7 +46,7 @@ static int get_time()
   }
 }
 
-static void process_remote(const char *mac)
+static void process_remote(struct device_settings settings, const char *mac)
 {
     int br;
     bool msg = true;
@@ -60,20 +61,24 @@ static void process_remote(const char *mac)
             msg = false;
         }
 
-//         if (settings.timeout.enabled) {
-          int current_time = get_time();
-          if (was_active()) {
-            last_time_action = current_time;
-            set_active(false);
-          } else if (current_time-last_time_action >= 30) {
-            syslog(LOG_INFO, "Remote was not in use, and timeout reached, disconneting...");
-            sig_term(0);
-            break;
-          }
-//         }
+        if (settings.timeout.enabled) {
+            int current_time = get_time();
+            if (was_active()) {
+                last_time_action = current_time;
+                set_active(false);
+            } else if (current_time-last_time_action >= settings.timeout.timeout) {
+                syslog(LOG_INFO, "Remote was not in use, and timeout reached, disconneting...");
+                sig_term(0);
+                break;
+            }
+        }
 
         if (br < 0) {
             break;
+        } else if (/* br==50 && */ buf[0]==0xa1 && buf[1]==0x01) { //only continue if we've got a Remote
+//            if (settings.joystick.enabled) do_joystick(fd, buf, settings.joystick);
+//            if (settings.remote.enabled) do_remote(fd, buf, settings.remote);
+//            if (settings.input.enabled) do_input(fd, buf, settings.input);
         } else {
             // do stuff
         }
@@ -86,6 +91,7 @@ int main(int argc, char *argv[])
 {
     struct pollfd p[3];
     struct timespec timeout;
+    struct device_settings settings;
     struct sigaction sa;
     sigset_t sigs;
     short events;
@@ -99,23 +105,18 @@ int main(int argc, char *argv[])
     debug = atoi(argv[2]);
 
     open_log("sixad-remote");
-    
-    struct device_settings settings;
-    settings.joystick.enabled = true;
-    settings.joystick.buttons = true;
-    settings.joystick.axis = false;
-    settings.joystick.sbuttons = false;
-    settings.joystick.accel = false;
-    settings.joystick.accon = false;
-    settings.joystick.speed = false;
-    settings.joystick.pos = false;
-    settings.input.enabled = false;
+    settings = init_values(mac);
+    settings.led.enabled = false;
     settings.rumble.enabled = false;
 
-    fd = uinput_open(JS_TYPE_REMOTE, mac, settings);
+    ufd = uinput_open(DEV_TYPE_REMOTE, mac, settings);
 
-    if (fd < 0)
+    if (ufd.js < 0 || ufd.mk < 0) {
         return 1;
+    } else if (ufd.js == 0 && ufd.mk == 0) {
+        syslog(LOG_ERR, "remote config has no joystick or input mode selected - please choose one!");
+        return 1;
+    }
 
     sigfillset(&sigs);
 //    sigdelset(&sigs, SIGCHLD);
@@ -141,7 +142,7 @@ int main(int argc, char *argv[])
     p[1].fd = 1;
     p[1].events = POLLIN | POLLERR | POLLHUP;
 
-    p[2].fd = fd;
+    p[2].fd = ufd.mk ? ufd.mk : ufd.js;
     p[2].events = POLLIN | POLLERR | POLLHUP;
 
     while (!io_canceled()) {
@@ -156,7 +157,7 @@ int main(int argc, char *argv[])
             continue;
 
         if (p[1].revents & POLLIN) {
-            process_remote(mac);
+            process_remote(settings, mac);
         }
 
         events = p[0].revents | p[1].revents | p[2].revents;
@@ -167,7 +168,14 @@ int main(int argc, char *argv[])
     }
 
     if (debug) syslog(LOG_INFO, "Closing uinput...");
-    uinput_close(fd, debug);
+
+    if (settings.joystick.enabled) {
+        uinput_close(ufd.js, debug);
+    }
+    if (settings.remote.enabled || settings.input.enabled) {
+        uinput_close(ufd.mk, debug);
+    }
+
     if (debug) syslog(LOG_INFO, "Done");
 
     return 0;

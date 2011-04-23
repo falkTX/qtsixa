@@ -23,10 +23,15 @@
 
 #define MAX_RUMBLE_EFFECTS 16
 
-#define JS_TYPE_SIXAXIS 1
-#define JS_TYPE_REMOTE 2
+#define DEV_TYPE_SIXAXIS 1
+#define DEV_TYPE_REMOTE 2
 
-int uinput_open(int JS_TYPE, const char *mac, struct device_settings settings);
+struct uinput_fd {
+    int js;
+    int mk;
+};
+
+struct uinput_fd uinput_open(int DEV_TYPE, const char *mac, struct device_settings settings);
 int uinput_close(int fd, int debug=0);
 int uinput_send(int fd, unsigned short type, unsigned short code, int value);
 

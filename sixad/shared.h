@@ -36,6 +36,14 @@ struct dev_joystick {
     bool pos;
 };
 
+struct dev_remote {
+    bool enabled;
+    bool numeric;
+    bool dvd;
+    bool directional;
+    bool multimedia;
+};
+
 struct dev_input {
     bool enabled;
     int key_select, key_l3, key_r3, key_start, key_up, key_right, key_down, key_left;
@@ -59,6 +67,7 @@ struct dev_timeout {
 struct device_settings {
     struct dev_led led;
     struct dev_joystick joystick;
+    struct dev_remote remote;
     struct dev_input input;
     struct dev_rumble rumble;
     struct dev_timeout timeout;

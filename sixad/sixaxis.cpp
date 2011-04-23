@@ -261,14 +261,6 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
 
     last_b1 = b1;
 
-    if (b1 > 0 || b2 > 0 || b3 > 0) {
-      set_active(true);
-    }
-
-    if (lx != 0 || ly != 0 || rx != 0 || ry != 0) {
-      set_active(true);
-    }
-
     //buttons
     if (!input.use_lr3 || (input.use_lr3 && lr3_buttons)) {
       //part1
@@ -372,6 +364,14 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
             uinput_send(fd, EV_REL, rel, ry);
           }
       }
+    }
+
+    if (b1 > 0 || b2 > 0 || b3 > 0) {
+      set_active(true);
+    }
+
+    if (lx != 0 || ly != 0 || rx != 0 || ry != 0) {
+      set_active(true);
     }
 
     uinput_send(fd, EV_SYN, SYN_REPORT, 0);

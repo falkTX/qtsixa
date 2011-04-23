@@ -21,7 +21,7 @@
 #define INPUT_TYPE_KEYS 2
 #define INPUT_TYPE_MOUSE 3
 
-struct rumble_effects {
+struct rumble_effect {
     int id;
     int weak;
     int strong;

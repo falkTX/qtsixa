@@ -30,6 +30,7 @@ install:
 	install -m 755 sixad $(DESTDIR)/usr/bin/
 	install -m 755 bins/sixad-bin $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-sixaxis $(DESTDIR)/usr/sbin/
+	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
 	install -m 644 98-sixad.rules $(DESTDIR)/lib/udev/rules.d/
 	@echo "Please run '[sudo] make install-system' now if you're installing from source"
@@ -49,6 +50,7 @@ uninstall:
 	rm -f $(DESTDIR)/usr/bin/sixad
 	rm -f $(DESTDIR)/usr/sbin/sixad-bin
 	rm -f $(DESTDIR)/usr/sbin/sixad-sixaxis
+	rm -f $(DESTDIR)/usr/sbin/sixad-remote
 	rm -f $(DESTDIR)/usr/sbin/sixad-raw
 	rm -f $(DESTDIR)/lib/udev/rules.d/98-sixad.rules
 	rm -rf $(DESTDIR)/var/lib/sixad/

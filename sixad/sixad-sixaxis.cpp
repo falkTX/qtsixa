@@ -28,7 +28,6 @@
 #include <time.h>
 #include <sys/socket.h>
 
-int fd;
 int csk = 0;
 int isk = 1;
 int debug;
@@ -41,12 +40,14 @@ volatile int weak = 0;
 volatile int strong = 0;
 volatile int timeout = 0;
 
+struct uinput_fd ufd;
+
 static void uinput_listen()
 {
         struct input_event event;
         struct uinput_ff_upload upload;
         struct uinput_ff_erase erase;
-        struct rumble_effects effects[MAX_RUMBLE_EFFECTS];
+        struct rumble_effect effects[MAX_RUMBLE_EFFECTS];
         int i;
 
         //reset effects
@@ -55,7 +56,7 @@ static void uinput_listen()
         }
 
         while (!io_canceled()) {
-                if (read(fd, &event, sizeof event) != sizeof event) {
+                if (read(ufd.js, &event, sizeof event) != sizeof event) {
                         syslog(LOG_INFO, "uinput_listen::Error on uinput read");
                         continue;
                 }
@@ -68,7 +69,7 @@ static void uinput_listen()
                         case UI_FF_UPLOAD:
                                 memset(&upload, 0, sizeof(upload));
                                 upload.request_id = event.value;
-                                if (ioctl(fd, UI_BEGIN_FF_UPLOAD, &upload) < 0) {
+                                if (ioctl(ufd.js, UI_BEGIN_FF_UPLOAD, &upload) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff upload begin");
                                 }
                                 weak = upload.effect.u.rumble.weak_magnitude/0x101;
@@ -89,14 +90,14 @@ static void uinput_listen()
                                     active = true;
                                 }
                                 upload.retval = 0;
-                                if (ioctl(fd, UI_END_FF_UPLOAD, &upload) < 0) {
+                                if (ioctl(ufd.js, UI_END_FF_UPLOAD, &upload) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff upload end");
                                 }
                                 break;
                         case UI_FF_ERASE:
                                 memset(&erase, 0, sizeof(erase));
                                 erase.request_id = event.value;
-                                if (ioctl(fd, UI_BEGIN_FF_ERASE, &erase) < 0) {
+                                if (ioctl(ufd.js, UI_BEGIN_FF_ERASE, &erase) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff erase begin");
                                 }
                                 if (!old_rumble_mode) {
@@ -113,7 +114,7 @@ static void uinput_listen()
                                     active = true;
                                 }
                                 erase.retval = 0;
-                                if (ioctl(fd, UI_END_FF_ERASE, &erase) < 0) {
+                                if (ioctl(ufd.js, UI_END_FF_ERASE, &erase) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff erase end");
                                 }
                                 break;
@@ -184,22 +185,22 @@ static void process_sixaxis(struct device_settings settings, const char *mac)
         }
 
         if (settings.timeout.enabled) {
-          int current_time = get_time();
-          if (was_active()) {
-            last_time_action = current_time;
-            set_active(false);
-          } else if (current_time-last_time_action >= settings.timeout.timeout) {
-            syslog(LOG_INFO, "Sixaxis was not in use, and timeout reached, disconneting...");
-            sig_term(0);
-            break;
-          }
+            int current_time = get_time();
+            if (was_active()) {
+                last_time_action = current_time;
+                set_active(false);
+            } else if (current_time-last_time_action >= settings.timeout.timeout) {
+                syslog(LOG_INFO, "Sixaxis was not in use, and timeout reached, disconneting...");
+                sig_term(0);
+                break;
+            }
         }
 
         if (br < 0) {
             break;
         } else if (br==50 && buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0x00) { //only continue if we've got a Sixaxis
-            if (settings.joystick.enabled) do_joystick(fd, buf, settings.joystick);
-            if (settings.input.enabled) do_input(fd, buf, settings.input);
+            if (settings.joystick.enabled) do_joystick(ufd.js, buf, settings.joystick);
+            if (settings.input.enabled) do_input(ufd.mk, buf, settings.input);
         } else if (br==50 && buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0xff) {
             if (debug) syslog(LOG_ERR, "Got 0xff Sixaxis buffer");
         } else if (buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0x00) {
@@ -233,11 +234,16 @@ int main(int argc, char *argv[])
 
     open_log("sixad-sixaxis");
     settings = init_values(mac);
+    settings.remote.enabled = false;
 
-    fd = uinput_open(JS_TYPE_SIXAXIS, mac, settings);
+    ufd = uinput_open(DEV_TYPE_SIXAXIS, mac, settings);
 
-    if (fd < 0)
+    if (ufd.js < 0 || ufd.mk < 0) {
         return 1;
+    } else if (ufd.js == 0 && ufd.mk == 0) {
+        syslog(LOG_ERR, "sixaxis config has no joystick or input mode selected - please choose one!");
+        return 1;
+    }
 
     enable_sixaxis(csk);
     led_n = set_sixaxis_led(csk, settings.led, settings.rumble.enabled);
@@ -280,7 +286,7 @@ int main(int argc, char *argv[])
     p[1].fd = 1;
     p[1].events = POLLIN | POLLERR | POLLHUP;
 
-    p[2].fd = fd;
+    p[2].fd = ufd.js ? ufd.js : ufd.mk;
     p[2].events = POLLIN | POLLERR | POLLHUP;
 
     while (!io_canceled()) {
@@ -323,7 +329,14 @@ int main(int argc, char *argv[])
     }
 
     if (debug) syslog(LOG_INFO, "Closing uinput...");
-    uinput_close(fd, debug);
+
+    if (settings.joystick.enabled) {
+        uinput_close(ufd.js, debug);
+    }
+    if (settings.input.enabled) {
+        uinput_close(ufd.mk, debug);
+    }
+
     if (debug) syslog(LOG_INFO, "Done");
 
     return 0;

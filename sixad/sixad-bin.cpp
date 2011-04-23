@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     sigaction(SIGPIPE, &sa, NULL);
 
     if (pthread_create(&search_thread, NULL, (void *(*)(void *))do_search_thread, NULL)) {
-        std::cerr << "error starting uinput listen thread" << std::endl;
+        std::cerr << "error starting search thread" << std::endl;
         return 1;
     }
 
@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
         hid_server(ctl, csk, isk, debug, legacy);
 //     }
 
-    std::cout << "Exit" << std::endl;
-    
+    std::cout << "Closing search thread..." << std::endl;
+
     sig_term(0);
 
     if (pthread_cancel(search_thread)) {
@@ -111,6 +111,8 @@ int main(int argc, char *argv[])
     close(isk);
     close(csk);
     close(ctl);
+
+    std::cout << "Done" << std::endl;
 
     return 0;
 }
