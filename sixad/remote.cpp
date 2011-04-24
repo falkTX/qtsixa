@@ -140,7 +140,7 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
 
     if (joystick.buttons) {
         //part1
-        if (last_jb1 != b1 || b1 == 0) {
+        if (last_jb1 != b1) {
             uinput_send(fd, EV_KEY, BTN_JOYSTICK + 0, b1 & 0x01 ? 1 : 0);
             uinput_send(fd, EV_KEY, BTN_JOYSTICK + 1, b1 & 0x02 ? 1 : 0);
             uinput_send(fd, EV_KEY, BTN_JOYSTICK + 2, b1 & 0x04 ? 1 : 0);
@@ -151,7 +151,7 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
             uinput_send(fd, EV_KEY, BTN_JOYSTICK + 7, b1 & 0x80 ? 1 : 0);
         }
         //part2
-        if (last_jb2 != b2 || b2 == 0) {
+        if (last_jb2 != b2) {
             uinput_send(fd, EV_KEY, BTN_JOYSTICK +  8, b2 & 0x01 ? 1 : 0);
             uinput_send(fd, EV_KEY, BTN_JOYSTICK +  9, b2 & 0x02 ? 1 : 0);
             uinput_send(fd, EV_KEY, BTN_JOYSTICK + 10, b2 & 0x04 ? 1 : 0);
@@ -162,7 +162,7 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
             uinput_send(fd, EV_KEY, BTN_JOYSTICK + 15, b2 & 0x80 ? 1 : 0);
         }
         //part3
-        if (last_jb3 != b3 || b3 == 0) {
+        if (last_jb3 != b3) {
             uinput_send(fd, EV_KEY, BTN_JOYSTICK + 16, b3 & 0x01 ? 1 : 0);
         }
 
@@ -205,7 +205,7 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
     b3 = buf[4];
 
     //part1
-    if (last_ib1 != b1 || b1 == 0) {
+    if (last_ib1 != b1) {
         if (input.key_select) uinput_send(fd, EV_KEY, input.key_select, b1 & 0x01 ? 1 : 0);
         if (input.key_l3) uinput_send(fd, EV_KEY, input.key_l3, b1 & 0x02 ? 1 : 0);
         if (input.key_r3) uinput_send(fd, EV_KEY, input.key_r3, b1 & 0x04 ? 1 : 0);
@@ -216,7 +216,7 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
         if (input.key_left) uinput_send(fd, EV_KEY, input.key_left, b1 & 0x80 ? 1 : 0);
     }
     //part2
-    if (last_ib2 != b2 || b2 == 0) {
+    if (last_ib2 != b2) {
         if (input.key_l2) uinput_send(fd, EV_KEY, input.key_l2, b2 & 0x01 ? 1 : 0);
         if (input.key_r2) uinput_send(fd, EV_KEY, input.key_r2, b2 & 0x02 ? 1 : 0);
         if (input.key_l1) uinput_send(fd, EV_KEY, input.key_l1, b2 & 0x04 ? 1 : 0);
@@ -227,7 +227,7 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
         if (input.key_squ) uinput_send(fd, EV_KEY, input.key_squ, b2 & 0x80 ? 1 : 0);
     }
     //part3
-    if (last_ib3 != b3 || b3 == 0) {
+    if (last_ib3 != b3) {
         if (input.key_ps) uinput_send(fd, EV_KEY, input.key_ps, b3 & 0x01 ? 1 : 0);
     }
 
