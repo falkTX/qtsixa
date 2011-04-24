@@ -18,8 +18,28 @@
 #ifndef SIXAXIS_H
 #define SIXAXIS_H
 
-#define INPUT_TYPE_KEYS 2
+#define INPUT_TYPE_KEYS  2
 #define INPUT_TYPE_MOUSE 3
+
+#define SIXAXIS_KEY_SELECT   0x01
+#define SIXAXIS_KEY_L3       0x02
+#define SIXAXIS_KEY_R3       0x04
+#define SIXAXIS_KEY_START    0x08
+#define SIXAXIS_KEY_UP       0x10
+#define SIXAXIS_KEY_RIGHT    0x20
+#define SIXAXIS_KEY_DOWN     0x40
+#define SIXAXIS_KEY_LEFT     0x80
+
+#define SIXAXIS_KEY_L2       0x01
+#define SIXAXIS_KEY_R2       0x02
+#define SIXAXIS_KEY_L1       0x04
+#define SIXAXIS_KEY_R1       0x08
+#define SIXAXIS_KEY_TRIANGLE 0x10
+#define SIXAXIS_KEY_CIRCLE   0x20
+#define SIXAXIS_KEY_CROSS    0x40
+#define SIXAXIS_KEY_SQUARE   0x80
+
+#define SIXAXIS_KEY_PS       0x01
 
 struct rumble_effect {
     int id;
