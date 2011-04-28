@@ -110,9 +110,9 @@ class NewDevW(QWizard, ui_qtsixa_newdevw.Ui_NewDevW):
               if (not self.checkDevOpt(dev, "enable_sbuttons")): self.js_sbutton.setChecked(False)
               if (not self.checkDevOpt(dev, "enable_axis")): self.js_axis.setChecked(False)
               if (not self.checkDevOpt(dev, "enable_accel")): self.js_accel.setChecked(False)
-              if (self.checkDevOpt(dev, "enable_accon")): self.js_accon.setChecked(False)
-              if (self.checkDevOpt(dev, "enable_speed")): self.js_speed.setChecked(False)
-              if (self.checkDevOpt(dev, "enable_pos")): self.js_pos.setChecked(False)
+              if (self.checkDevOpt(dev, "enable_accon")): self.js_accon.setChecked(True)
+              if (self.checkDevOpt(dev, "enable_speed")): self.js_speed.setChecked(True)
+              if (self.checkDevOpt(dev, "enable_pos")): self.js_pos.setChecked(True)
 
               app_name = open("/var/lib/sixad/profiles/"+dev, "r").read().split("# Input - \"")[1].split("\"")[0]
               for i in range(self.co_input.count()):
