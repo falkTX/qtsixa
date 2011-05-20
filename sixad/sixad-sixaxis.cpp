@@ -314,15 +314,13 @@ int main(int argc, char *argv[])
     if (settings.rumble.enabled) {
       if (pthread_cancel(uinput_listen_thread)) {
               syslog(LOG_ERR, "Error canceling uinput listen thread");
-      }
-      else if (pthread_join(uinput_listen_thread, NULL)) {
+      } else if (pthread_join(uinput_listen_thread, NULL)) {
               syslog(LOG_ERR, "Error joining uinput listen thread");
       }
       if (settings.rumble.old_mode) {
           if (pthread_cancel(rumble_listen_thread)) {
               syslog(LOG_ERR, "Error canceling rumble listen thread");
-          }
-          else if (pthread_join(rumble_listen_thread, NULL)) {
+          } else if (pthread_join(rumble_listen_thread, NULL)) {
               syslog(LOG_ERR, "Error joining rumble listen thread");
           }
       }
