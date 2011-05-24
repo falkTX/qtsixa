@@ -120,6 +120,8 @@ struct device_settings init_values(const char *addr)
         settings.timeout.enabled = textfile_get_int(pathname, "enable_timeout", 1);
         settings.timeout.timeout = textfile_get_int(pathname, "timeout_mins", 30);
 
+        settings.auto_disconnect = (bool)textfile_get_int(pathname, "out_of_reach_disconnects", 0);
+
     } else if (open("/var/lib/sixad/profiles/default", O_RDONLY) > 0) { //default config
         strcpy(pathname, "/var/lib/sixad/profiles/default");
 
@@ -180,6 +182,8 @@ struct device_settings init_values(const char *addr)
         settings.timeout.enabled = textfile_get_int(pathname, "enable_timeout", 1);
         settings.timeout.timeout = textfile_get_int(pathname, "timeout_mins", 30);
 
+        settings.auto_disconnect = (bool)textfile_get_int(pathname, "out_of_reach_disconnects", 0);
+
     } else { // no config
 
         settings.led.enabled = 1;
@@ -239,6 +243,7 @@ struct device_settings init_values(const char *addr)
         settings.timeout.enabled = 1;
         settings.timeout.timeout = 30;
 
+        settings.auto_disconnect = false;
     }
 
     return settings;

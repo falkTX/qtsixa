@@ -199,12 +199,19 @@ static void process_sixaxis(struct device_settings settings, const char *mac)
         if (br < 0) {
             break;
         } else if (br==50 && buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0x00) { //only continue if we've got a Sixaxis
+            if (settings.auto_disconnect && buf[34] != 0x00 && buf[34] < 0xB5) {
+                syslog(LOG_INFO, "Sixaxis out of reach, auto-disconneting now...");
+                sig_term(0);
+                break;
+            }
+
             if (settings.joystick.enabled) do_joystick(ufd.js, buf, settings.joystick);
             if (settings.input.enabled) do_input(ufd.mk, buf, settings.input);
+
         } else if (br==50 && buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0xff) {
             if (debug) syslog(LOG_ERR, "Got 0xff Sixaxis buffer");
         } else if (buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0x00) {
-            syslog(LOG_ALERT, "Sixaxis out of battery!"); // TODO - needs more checks
+            syslog(LOG_ALERT, "Bad Sixaxis buffer (out of battery?)");
             break;
         } else {
             if (debug) syslog(LOG_ERR, "Non-Sixaxis packet received and ignored (0x%02x|0x%02x|0x%02x)", buf[0], buf[1], buf[2]);

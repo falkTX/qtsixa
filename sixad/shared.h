@@ -65,6 +65,7 @@ struct dev_timeout {
 };
 
 struct device_settings {
+    bool auto_disconnect;
     struct dev_led led;
     struct dev_joystick joystick;
     struct dev_remote remote;
