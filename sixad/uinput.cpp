@@ -189,7 +189,7 @@ struct uinput_fd uinput_open(int DEV_TYPE, const char *mac, struct device_settin
         }
     }
 
-    if (settings.joystick.enabled && settings.rumble.enabled) {
+    if (DEV_TYPE == DEV_TYPE_SIXAXIS && settings.joystick.enabled && settings.rumble.enabled) {
         if (ioctl(ufd.js, UI_SET_FFBIT, FF_RUMBLE) < 0) {
             syslog(LOG_ERR, "uinput_open()::ioctl(FF_RUMBLE) - failed to set attribute");
             goto error;
