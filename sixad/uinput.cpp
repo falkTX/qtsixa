@@ -106,41 +106,43 @@ struct uinput_fd uinput_open(int DEV_TYPE, const char *mac, struct device_settin
         }
 
         // enable all axis and accelerometers
+        int pos;
         for (i=0; i<29; i++) {
+            pos = (i >= 16) i+SIXAXIS_AXIS_PADDING : i;
             if (i >= 0 && i <= 3) {// left & right axis
-                dev.absmax[i] = 127;
-                dev.absmin[i] = -127;
+                dev.absmax[pos] = 127;
+                dev.absmin[pos] = -127;
             } else if (i == 4) {  // Accelerometer X (reversed)
-                dev.absmax[i] = -402;
-                dev.absmin[i] = -622;
+                dev.absmax[pos] = -402;
+                dev.absmin[pos] = -622;
             } else if (i == 5) {  // Accelerometer Y
-                dev.absmax[i] = 622;
-                dev.absmin[i] = 402;
+                dev.absmax[pos] = 622;
+                dev.absmin[pos] = 402;
             } else if (i == 6) {  // Accelerometer Z
-                dev.absmax[i] = 622;
-                dev.absmin[i] = 402;
+                dev.absmax[pos] = 622;
+                dev.absmin[pos] = 402;
             } else if (i == 7) {  // Gyro - Does NOT work
-                dev.absmax[i] = 127;
-                dev.absmin[i] = -127;
+                dev.absmax[pos] = 127;
+                dev.absmin[pos] = -127;
             } else if (i >= 8 && i <= 19) {  // Buttons
-                dev.absmax[i] = 255;
-                dev.absmin[i] = -255;
+                dev.absmax[pos] = 255;
+                dev.absmin[pos] = -255;
             } else if (i >= 20 && i <= 22) { // Acceleration
-                dev.absmax[i] = 1250;
-                dev.absmin[i] = -1250;
+                dev.absmax[pos] = 1250;
+                dev.absmin[pos] = -1250;
             } else if (i >= 23 && i <= 25) { // Speed
-                dev.absmax[i] = 1250;
-                dev.absmin[i] = -1250;
+                dev.absmax[pos] = 1250;
+                dev.absmin[pos] = -1250;
             } else if (i >= 26 && i <= 28) { // Position
-                dev.absmax[i] = 1250;
-                dev.absmin[i] = -1250;
+                dev.absmax[pos] = 1250;
+                dev.absmin[pos] = -1250;
             } else {
-                dev.absmax[i] = 32767;
-                dev.absmin[i] = -32767;
+                dev.absmax[pos] = 32767;
+                dev.absmin[pos] = -32767;
             }
 
-            if (ioctl(ufd.js, UI_SET_ABSBIT, i) < 0) {
-                syslog(LOG_ERR, "uinput_open()::ioctl(ABS_AXIS) - failed to register axis %i", i);
+            if (ioctl(ufd.js, UI_SET_ABSBIT, pos) < 0) {
+                syslog(LOG_ERR, "uinput_open()::ioctl(ABS_AXIS) - failed to register axis %i", pos);
                 goto error;
             }
         }
