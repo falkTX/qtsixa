@@ -194,6 +194,22 @@ struct uinput_fd uinput_open(int DEV_TYPE, const char *mac, struct device_settin
             syslog(LOG_ERR, "uinput_open()::ioctl(FF_RUMBLE) - failed to set attribute");
             goto error;
         }
+        if (ioctl(ufd.js, UI_SET_FFBIT, FF_PERIODIC) < 0) {
+            syslog(LOG_ERR, "uinput_open()::ioctl(FF_PERIODIC) - failed to set attribute");
+            goto error;
+        }
+        if (ioctl(ufd.js, UI_SET_FFBIT, FF_SQUARE) < 0) {
+            syslog(LOG_ERR, "uinput_open()::ioctl(FF_SQUARE) - failed to set attribute");
+            goto error;
+        }
+        if (ioctl(ufd.js, UI_SET_FFBIT, FF_TRIANGLE) < 0) {
+            syslog(LOG_ERR, "uinput_open()::ioctl(FF_TRIANGLE) - failed to set attribute");
+            goto error;
+        }
+        if (ioctl(ufd.js, UI_SET_FFBIT, FF_SINE) < 0) {
+            syslog(LOG_ERR, "uinput_open()::ioctl(FF_SINE) - failed to set attribute");
+            goto error;
+        }
         dev.ff_effects_max = MAX_RUMBLE_EFFECTS;
 
         if (ioctl(ufd.js, UI_SET_EVBIT, EV_FF) < 0) {
