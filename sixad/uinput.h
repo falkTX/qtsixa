@@ -26,6 +26,8 @@
 #define DEV_TYPE_SIXAXIS 1
 #define DEV_TYPE_REMOTE 2
 
+#define AXIS_PADDING 10
+
 struct uinput_fd {
     int js;
     int mk;

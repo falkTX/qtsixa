@@ -201,10 +201,10 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
         uinput_send(fd, EV_ABS, 13, r2);
         uinput_send(fd, EV_ABS, 14, l1);
         uinput_send(fd, EV_ABS, 15, r1);
-        uinput_send(fd, EV_ABS, 16+SIXAXIS_AXIS_PADDING, tri);
-        uinput_send(fd, EV_ABS, 17+SIXAXIS_AXIS_PADDING, cir);
-        uinput_send(fd, EV_ABS, 18+SIXAXIS_AXIS_PADDING, cro);
-        uinput_send(fd, EV_ABS, 19+SIXAXIS_AXIS_PADDING, squ);
+        uinput_send(fd, EV_ABS, 16+AXIS_PADDING, tri);
+        uinput_send(fd, EV_ABS, 17+AXIS_PADDING, cir);
+        uinput_send(fd, EV_ABS, 18+AXIS_PADDING, cro);
+        uinput_send(fd, EV_ABS, 19+AXIS_PADDING, squ);
 
         if (up > 0 || right > 0 || down > 0 || left > 0 || l2 > 0 || r2 > 0 || l1 > 0 || r1 > 0 || tri > 0 || cir > 0 || cro > 0 || squ > 0 ) {
           set_active(true);
@@ -213,23 +213,23 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
 
     //acceleration
     if (joystick.accon) {
-        uinput_send(fd, EV_ABS, 20+SIXAXIS_AXIS_PADDING, accX);
-        uinput_send(fd, EV_ABS, 21+SIXAXIS_AXIS_PADDING, accY);
-        uinput_send(fd, EV_ABS, 22+SIXAXIS_AXIS_PADDING, accZ);
+        uinput_send(fd, EV_ABS, 20+AXIS_PADDING, accX);
+        uinput_send(fd, EV_ABS, 21+AXIS_PADDING, accY);
+        uinput_send(fd, EV_ABS, 22+AXIS_PADDING, accZ);
     }
 
     //speed
     if (joystick.speed) {
-        uinput_send(fd, EV_ABS, 23+SIXAXIS_AXIS_PADDING, velX);
-        uinput_send(fd, EV_ABS, 24+SIXAXIS_AXIS_PADDING, velY);
-        uinput_send(fd, EV_ABS, 25+SIXAXIS_AXIS_PADDING, velZ);
+        uinput_send(fd, EV_ABS, 23+AXIS_PADDING, velX);
+        uinput_send(fd, EV_ABS, 24+AXIS_PADDING, velY);
+        uinput_send(fd, EV_ABS, 25+AXIS_PADDING, velZ);
     }
 
     //position
     if (joystick.pos) {
-        uinput_send(fd, EV_ABS, 26+SIXAXIS_AXIS_PADDING, posX);
-        uinput_send(fd, EV_ABS, 27+SIXAXIS_AXIS_PADDING, posY);
-        uinput_send(fd, EV_ABS, 28+SIXAXIS_AXIS_PADDING, posZ);
+        uinput_send(fd, EV_ABS, 26+AXIS_PADDING, posX);
+        uinput_send(fd, EV_ABS, 27+AXIS_PADDING, posY);
+        uinput_send(fd, EV_ABS, 28+AXIS_PADDING, posZ);
     }
 
     last_jb1 = b1;

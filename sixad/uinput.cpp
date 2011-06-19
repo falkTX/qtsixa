@@ -108,7 +108,7 @@ struct uinput_fd uinput_open(int DEV_TYPE, const char *mac, struct device_settin
         // enable all axis and accelerometers
         int pos;
         for (i=0; i<29; i++) {
-            pos = (i >= 16) i+SIXAXIS_AXIS_PADDING : i;
+            pos = (i >= 16) ? i+AXIS_PADDING : i;
             if (i >= 0 && i <= 3) {// left & right axis
                 dev.absmax[pos] = 127;
                 dev.absmin[pos] = -127;

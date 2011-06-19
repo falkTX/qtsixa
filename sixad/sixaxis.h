@@ -41,8 +41,6 @@
 
 #define SIXAXIS_KEY_PS       0x01
 
-#define SIXAXIS_AXIS_PADDING 10
-
 struct rumble_effect {
     int id;
     int weak;
