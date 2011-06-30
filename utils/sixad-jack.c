@@ -297,12 +297,12 @@ int main(int argc, char **argv)
     }
 
     black_keys = 0;
-    if (argc == 3)
-      if (argv[1][0] == '-')
-        if (argv[1][1] == 'b') {
+    if (argc == 3) {
+      if (argv[1][0] == '-' && argv[1][1] == 'b') {
           black_keys = 1;
           if (debug) printf("Using black keys\n");
         }
+    }
 
     if (black_keys)
       fd = open(argv[2], O_RDONLY);

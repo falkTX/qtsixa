@@ -22,8 +22,8 @@ install:
 	install -d $(DESTDIR)/etc/logrotate.d/
 	install -d $(DESTDIR)/usr/bin/
 	install -d $(DESTDIR)/usr/sbin/
-	install -d $(DESTDIR)/lib/udev/rules.d/
 	install -d $(DESTDIR)/var/lib/sixad/
+	install -d $(DESTDIR)/var/lib/sixad/profiles/
 	install -m 644 sixad.default $(DESTDIR)/etc/default/sixad
 	install -m 755 sixad.init $(DESTDIR)/etc/init.d/sixad
 	install -m 644 sixad.log $(DESTDIR)/etc/logrotate.d/sixad
@@ -32,7 +32,6 @@ install:
 	install -m 755 bins/sixad-sixaxis $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
-	install -m 644 98-sixad.rules $(DESTDIR)/lib/udev/rules.d/
 	@echo "Please run '[sudo] make install-system' now if you're installing from source"
 
 install-system:
@@ -52,5 +51,5 @@ uninstall:
 	rm -f $(DESTDIR)/usr/sbin/sixad-sixaxis
 	rm -f $(DESTDIR)/usr/sbin/sixad-remote
 	rm -f $(DESTDIR)/usr/sbin/sixad-raw
-	rm -f $(DESTDIR)/lib/udev/rules.d/98-sixad.rules
 	rm -rf $(DESTDIR)/var/lib/sixad/
+	@if [ -f /usr/sbin/bluetoothd.bak ]; then mv /usr/sbin/bluetoothd.bak /usr/sbin/bluetoothd; fi
