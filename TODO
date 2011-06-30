@@ -1,6 +1,5 @@
 QtSixA TODO list
 
- - Code joystick timeout (mins)
  - Register sixad in DBus, so we can eventually change settings without re-connect
  - ALSA midi mode
  - DBus sender mode (to control other apps)
@@ -8,7 +7,3 @@ QtSixA TODO list
  - What is the gyro suppose to do ??
  - Create a new icon!
  - Use user's icon theme instead of just Oxygen
-
-
-I forgot to tell you that the sixpair path is broken, it is installed in /usr/bin, and qtsixa/gui/qtsixa_main.py tries to launch /usr/sbin/sixpair.
-
