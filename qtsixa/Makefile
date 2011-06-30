@@ -22,8 +22,8 @@ install:
 	install -d $(DESTDIR)/usr/bin/
 	install -d $(DESTDIR)/usr/share/applications/
 	install -d $(DESTDIR)/usr/share/pixmaps/
-	install -d $(DESTDIR)/usr/share/doc/qtsixa/
-	install -d $(DESTDIR)/usr/share/doc/qtsixa/manual/
+# 	install -d $(DESTDIR)/usr/share/doc/qtsixa/
+# 	install -d $(DESTDIR)/usr/share/doc/qtsixa/manual/
 	install -d $(DESTDIR)/usr/share/qtsixa/
 	install -d $(DESTDIR)/usr/share/qtsixa/game-profiles/
 	install -d $(DESTDIR)/usr/share/qtsixa/gui/
@@ -35,7 +35,7 @@ install:
 	install -m 655 qtsixa $(DESTDIR)/usr/bin/
 	install -m 655 sixad-lq $(DESTDIR)/usr/bin/
 	install -m 655 sixad-notify $(DESTDIR)/usr/bin/
-	install -m 644 manual/* $(DESTDIR)/usr/share/doc/qtsixa/manual/
+# 	install -m 644 manual/* $(DESTDIR)/usr/share/doc/qtsixa/manual/
 	install -m 644 game-profiles/* $(DESTDIR)/usr/share/qtsixa/game-profiles/
 	install -m 644 gui/*.py $(DESTDIR)/usr/share/qtsixa/gui/
 	install -m 644 icons/* $(DESTDIR)/usr/share/qtsixa/icons/
