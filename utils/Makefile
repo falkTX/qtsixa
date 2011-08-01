@@ -6,7 +6,7 @@ LDFLAGS += -Wl,-Bsymbolic-functions
 
 WANT_JACK = true
 
-all: tools
+all: tools hcid_bin
 
 tools:
 	mkdir -p bins
@@ -29,7 +29,7 @@ install:
 	install -d $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixpair $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixpair-kbd $(DESTDIR)/usr/sbin/
-# 	install -m 755 bins/hcid $(DESTDIR)/usr/sbin/
+	install -m 755 bins/hcid $(DESTDIR)/usr/sbin/
 	install -m 755 bins/hidraw-dump $(DESTDIR)/usr/sbin/
 ifeq ($(WANT_JACK),true)
 	install -m 755 bins/sixad-jack $(DESTDIR)/usr/bin/
@@ -37,7 +37,7 @@ endif
 
 uninstall:
 	rm -f $(DESTDIR)/usr/bin/sixad-jack
-# 	rm -f $(DESTDIR)/usr/sbin/hcid
+	rm -f $(DESTDIR)/usr/sbin/hcid
 	rm -f $(DESTDIR)/usr/sbin/hidraw-dump
 	rm -f $(DESTDIR)/usr/sbin/sixpair
 	rm -f $(DESTDIR)/usr/sbin/sixpair-kbd
