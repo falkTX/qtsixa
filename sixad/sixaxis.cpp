@@ -399,6 +399,10 @@ void do_rumble(int csk, int led_n, int weak, int strong, int timeout)
         0x1C, 0x1E  // 9, 10
     };
 
+    // TESTING
+    weak *= 2;
+    strong *= 2;
+
     if (weak > 0xff) weak = 0xff;
     else if (weak < 0) weak = 0;
     if (strong > 0xff) strong = 0xff;
@@ -410,7 +414,7 @@ void do_rumble(int csk, int led_n, int weak, int strong, int timeout)
     setrumble[4] = weak;
     setrumble[6] = strong;
 
-    syslog(LOG_INFO, "Rumble Callback (%i|%i|%i)", weak, strong, timeout);
+    //syslog(LOG_INFO, "Rumble Callback (%i|%i|%i)", weak, strong, timeout);
 
     setrumble[11] = ledpattern[led_n]; //keep old led
     send(csk, setrumble, sizeof(setrumble), 0);

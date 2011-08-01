@@ -153,7 +153,7 @@ static void rumble_listen()
             do_rumble(csk, led_n, weak, strong, timeout);
             active = false;
         } else
-            usleep(500);
+            usleep(5000);
     }
 
     pthread_exit((void*)1);
