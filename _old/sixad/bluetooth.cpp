@@ -384,6 +384,8 @@ int get_sdp_device_info(const bdaddr_t *src, const bdaddr_t *dst, struct hidp_co
     uuid_t svclass;
     uint32_t range = 0x0000ffff;
     int err;
+    
+    return 0;
 
     sdp_session = sdp_connect(src, dst, SDP_RETRY_IF_BUSY | SDP_WAIT_ON_CLOSE);
     if (!sdp_session) {

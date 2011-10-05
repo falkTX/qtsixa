@@ -400,8 +400,9 @@ void do_rumble(int csk, int led_n, int weak, int strong, int timeout)
     };
 
     // TESTING
-    weak *= 2;
-    strong *= 2;
+    weak *= 10;
+    strong *= 10;
+    timeout *= 10;
 
     if (weak > 0xff) weak = 0xff;
     else if (weak < 0) weak = 0;
