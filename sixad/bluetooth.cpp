@@ -77,11 +77,9 @@ void do_connect(int ctl, bdaddr_t *src, bdaddr_t *dst, int debug)
 {
         struct hidp_connadd_req req;
         uint16_t uuid = HID_SVCLASS_ID;
-        char name[256];
         int csk, isk, err;
 
         memset(&req, 0, sizeof(req));
-        name[0] = '\0';
 
         err = get_sdp_device_info(src, dst, &req);
 
@@ -384,8 +382,6 @@ int get_sdp_device_info(const bdaddr_t *src, const bdaddr_t *dst, struct hidp_co
     uuid_t svclass;
     uint32_t range = 0x0000ffff;
     int err;
-    
-    return 0;
 
     sdp_session = sdp_connect(src, dst, SDP_RETRY_IF_BUSY | SDP_WAIT_ON_CLOSE);
     if (!sdp_session) {
