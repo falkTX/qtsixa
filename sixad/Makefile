@@ -52,4 +52,3 @@ uninstall:
 	rm -f $(DESTDIR)/usr/sbin/sixad-remote
 	rm -f $(DESTDIR)/usr/sbin/sixad-raw
 	rm -rf $(DESTDIR)/var/lib/sixad/
-	@if [ -f /usr/sbin/bluetoothd.bak ]; then mv /usr/sbin/bluetoothd.bak /usr/sbin/bluetoothd; fi

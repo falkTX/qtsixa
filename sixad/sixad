@@ -48,11 +48,8 @@ $SUDO /sbin/modprobe uinput
 }
 
 bt_start () {
-$SUDO pkill -KILL hcid
-
-if [ -f /usr/sbin/bluetoothd.bak ]; then
-  $SUDO mv /usr/sbin/bluetoothd.bak /usr/sbin/bluetoothd
-fi
+$SUDO rm -f /tmp/.sixad-dbus-blocker.pid
+env sleep 1
 
 if [ -f /lib/udev/rules.d/97-bluetooth.rules ]; then
   $SUDO /usr/sbin/bluetoothd --udev
@@ -68,11 +65,7 @@ if (bluetoothd_running_check); then
   $SUDO pkill -KILL bluetoothd
 fi
 
-if [ -f /usr/sbin/bluetoothd ]; then
-  $SUDO mv /usr/sbin/bluetoothd /usr/sbin/bluetoothd.bak
-fi
-
-$SUDO /usr/sbin/hcid
+$SUDO /usr/sbin/sixad-dbus-blocker
 }
 
 case $1 in
