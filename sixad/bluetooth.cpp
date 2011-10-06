@@ -172,6 +172,7 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
     int ctrl_socket, intr_socket, err;
 
     memset(&addr, 0, sizeof(addr));
+    memset(&req, 0, sizeof(req));
     addrlen = sizeof(addr);
 
     if ((ctrl_socket = accept(csk, (struct sockaddr *)&addr, &addrlen)) < 0) {
@@ -199,7 +200,16 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
         return;
     }
 
+#ifdef GASIA_GAMEPAD_HACKS
+    req.vendor  = 0x054c;
+    req.product = 0x0268;
+    req.version = 0x0100;
+    req.parser  = 0x0100;
+
+    strcpy(req.name, "Gasia Gamepad experimental driver");
+#else
     get_sdp_device_info(&addr_src, &addr_dst, &req);
+#endif
 
     if (!legacy && req.vendor == 0x054c && req.product == 0x0268) {
         if (debug) syslog(LOG_INFO, "Will initiate Sixaxis now");
@@ -356,7 +366,20 @@ int create_device(int ctl, int csk, int isk)
      req.flags     = 0;
      req.idle_to   = 1800;
 
-     err = get_sdp_device_info(&src, &dst, &req);
+
+#ifdef GASIA_GAMEPAD_HACKS
+    req.vendor  = 0x054c;
+    req.product = 0x0268;
+    req.version = 0x0100;
+    req.parser  = 0x0100;
+
+    strcpy(req.name, "Gasia Gamepad experimental driver");
+
+    err = 0;
+#else
+    err = get_sdp_device_info(&src, &dst, &req);
+#endif
+
      if (err < 0)
          return err;
      else {

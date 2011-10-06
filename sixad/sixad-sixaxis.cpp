@@ -209,9 +209,10 @@ static void process_sixaxis(struct device_settings settings, const char *mac)
             if (settings.input.enabled) do_input(ufd.mk, buf, settings.input);
 
         } else if (br==50 && buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0xff) {
-            if (debug) syslog(LOG_ERR, "Got 0xff Sixaxis buffer");
+            if (debug) syslog(LOG_ERR, "Got 0xff Sixaxis buffer, ignored");
         } else if (buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0x00) {
-            syslog(LOG_ALERT, "Bad Sixaxis buffer (out of battery?)");
+            syslog(LOG_ERR, "Bad Sixaxis buffer (out of battery?), disconneting now...");
+	    sig_term(0);
             break;
         } else {
             if (debug) syslog(LOG_ERR, "Non-Sixaxis packet received and ignored (0x%02x|0x%02x|0x%02x)", buf[0], buf[1], buf[2]);
@@ -240,6 +241,7 @@ int main(int argc, char *argv[])
     debug = atoi(argv[2]);
 
     open_log("sixad-sixaxis");
+    syslog(LOG_INFO, "started");
     settings = init_values(mac);
     settings.remote.enabled = false;
 

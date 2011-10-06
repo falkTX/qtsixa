@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     }
 
     open_log("sixad-bin");
+    syslog(LOG_INFO, "started");
     bacpy(&bdaddr, BDADDR_ANY);
 
     ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HIDP);

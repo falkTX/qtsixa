@@ -32,7 +32,7 @@ install:
 	install -m 755 bins/sixad-sixaxis $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
-	install -m 755 bins/sixad-dbus-blocker $(DESTDIR)/usr/sbin/
+	install -m 755 sixad-dbus-blocker $(DESTDIR)/usr/sbin/
 	@echo "Please run '[sudo] make install-system' now if you're installing from source"
 
 install-system:
