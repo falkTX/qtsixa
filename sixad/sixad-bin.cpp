@@ -18,16 +18,29 @@
 #include "bluetooth.h"
 #include "shared.h"
 
-#include <cstdlib>
 #include <iostream>
 #include <signal.h>
+#include <stdlib.h>
 #include <syslog.h>
+#include <sys/ioctl.h>
+
+#include <bluetooth/hci.h>
+#include <bluetooth/hci_lib.h>
+
+static struct hci_dev_info di;
+
+static void cmd_reset(int ctl, int hdev)
+{
+    /* Reset HCI device */
+    ioctl(ctl, HCIDEVUP, hdev);
+    ioctl(ctl, HCIDEVDOWN, hdev);
+}
 
 int main(int argc, char *argv[])
 {
     struct sigaction sa;
     bdaddr_t bdaddr;
-    int ctl, csk, isk, debug, legacy, remote;
+    int hci_ctl, ctl, csk, isk, debug, legacy, remote;
 
     if (argc > 3) {
       debug = atoi(argv[1]);
@@ -36,6 +49,23 @@ int main(int argc, char *argv[])
     } else {
       std::cerr << argv[0] << " requires 'sixad'. Please run sixad instead" << std::endl;
       return 1;
+    }
+
+    // Enable all bluetooth adapters
+    if ((hci_ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) >= 0) {
+      for (int i=0; i < 4; i++)
+      {
+        di.dev_id = i;
+        if (ioctl(hci_ctl, HCIGETDEVINFO, (void *) &di) == 0)
+        {
+          if (hci_test_bit(HCI_RAW, &di.flags) && !bacmp(&di.bdaddr, BDADDR_ANY)) {
+            int dd = hci_open_dev(di.dev_id);
+            hci_read_bd_addr(dd, &di.bdaddr, 1000);
+            hci_close_dev(dd);
+          }
+        }
+        cmd_reset(hci_ctl, di.dev_id);
+      }
     }
 
     open_log("sixad-bin");
