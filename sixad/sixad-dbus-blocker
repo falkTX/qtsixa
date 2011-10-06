@@ -15,6 +15,9 @@ class BluezBlockService(dbus.service.Object):
 DBusGMainLoop(set_as_default=True)
 dbus_blocker = BluezBlockService()
 
+if os.path.exists("/tmp/.sixad-dbus-blocker.pid"):
+  os.remove("/tmp/.sixad-dbus-blocker.pid")
+
 os.mknod("/tmp/.sixad-dbus-blocker.pid")
 
 while True:
