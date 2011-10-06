@@ -22,6 +22,8 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <syslog.h>
+
+#if 0
 #include <sys/ioctl.h>
 
 #include <bluetooth/hci.h>
@@ -35,12 +37,13 @@ static void cmd_reset(int ctl, int hdev)
     ioctl(ctl, HCIDEVUP, hdev);
     ioctl(ctl, HCIDEVDOWN, hdev);
 }
+#endif
 
 int main(int argc, char *argv[])
 {
     struct sigaction sa;
     bdaddr_t bdaddr;
-    int hci_ctl, ctl, csk, isk, debug, legacy, remote;
+    int ctl, csk, isk, debug, legacy, remote;
 
     if (argc > 3) {
       debug = atoi(argv[1]);
@@ -51,7 +54,10 @@ int main(int argc, char *argv[])
       return 1;
     }
 
+
+#if 0
     // Enable all bluetooth adapters
+    int hci_ctl;
     if ((hci_ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) >= 0) {
       for (int i=0; i < 4; i++)
       {
@@ -67,6 +73,7 @@ int main(int argc, char *argv[])
         cmd_reset(hci_ctl, di.dev_id);
       }
     }
+#endif
 
     open_log("sixad-bin");
     syslog(LOG_INFO, "started");

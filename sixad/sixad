@@ -65,7 +65,7 @@ if (bluetoothd_running_check); then
   $SUDO pkill -KILL bluetoothd
 fi
 
-$SUDO /usr/sbin/sixad-dbus-blocker
+$SUDO /usr/sbin/sixad-dbus-blocker &
 }
 
 case $1 in
