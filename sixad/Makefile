@@ -32,12 +32,13 @@ install:
 	install -m 755 bins/sixad-sixaxis $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
+	install -m 755 bins/sixad-dbus-blocker $(DESTDIR)/usr/sbin/
 	@echo "Please run '[sudo] make install-system' now if you're installing from source"
 
 install-system:
 	@addgroup --system sixad || true
-	@chown :sixad $(DESTDIR)/var/lib/sixad/
 	@chmod 775 -R $(DESTDIR)/var/lib/sixad/
+	@chown :sixad $(DESTDIR)/var/lib/sixad/
 	@echo "Installation is Complete!"
 	@echo "You may want to add yourself to the sixad group now:"
 	@echo "$ [sudo] adduser YOUR-USER sixad"
@@ -51,4 +52,5 @@ uninstall:
 	rm -f $(DESTDIR)/usr/sbin/sixad-sixaxis
 	rm -f $(DESTDIR)/usr/sbin/sixad-remote
 	rm -f $(DESTDIR)/usr/sbin/sixad-raw
+	rm -f $(DESTDIR)/usr/sbin/sixad-dbus-blocker
 	rm -rf $(DESTDIR)/var/lib/sixad/
