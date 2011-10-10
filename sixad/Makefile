@@ -36,12 +36,8 @@ install:
 	@echo "Please run '[sudo] make install-system' now if you're installing from source"
 
 install-system:
-	@addgroup --system sixad || true
-	@chmod 775 -R $(DESTDIR)/var/lib/sixad/
-	@chown :sixad $(DESTDIR)/var/lib/sixad/
+	@chmod 777 -R $(DESTDIR)/var/lib/sixad/
 	@echo "Installation is Complete!"
-	@echo "You may want to add yourself to the sixad group now:"
-	@echo "$ [sudo] adduser YOUR-USER sixad"
 
 uninstall:
 	rm -f $(DESTDIR)/etc/default/sixad

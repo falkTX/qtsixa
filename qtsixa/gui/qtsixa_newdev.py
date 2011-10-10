@@ -16,8 +16,6 @@ class NewDevW(QWizard, ui_qtsixa_newdevw.Ui_NewDevW):
         self.setupUi(self)
         self.setWindowIcon(QIcon(":/icons/qtsixa.png"))
 
-        self.connect(self.ch_js, SIGNAL('clicked()'), self.func_ShowBugWarn)
-        self.connect(self.ch_input, SIGNAL('clicked()'), self.func_ShowBugWarn)
         self.connect(self.co_input, SIGNAL('currentIndexChanged(QString)'), self.func_UpdatePreview)
         self.connect(self, SIGNAL('accepted()'), self.func_Done)
         self.connect(self, SIGNAL('currentIdChanged(int)'), self.func_ChangedPage)
@@ -25,8 +23,6 @@ class NewDevW(QWizard, ui_qtsixa_newdevw.Ui_NewDevW):
         self.l_preview.setPixmap(QPixmap("/usr/share/qtsixa/pics/(None).png"))
         self.lastpage = -1
 
-        self.warn_joyin_ico.setVisible(False)
-        self.warn_joyin_txt.setVisible(False)
         self.warn_disablejoy_ico.setVisible(False)
         self.warn_disablejoy_txt.setVisible(False)
 
@@ -144,14 +140,6 @@ class NewDevW(QWizard, ui_qtsixa_newdevw.Ui_NewDevW):
 	else:
 	  self.warn_disablejoy_ico.setVisible(False)
 	  self.warn_disablejoy_txt.setVisible(False)
-
-    def func_ShowBugWarn(self):
-	if (self.ch_js.isChecked() and self.ch_input.isChecked()):
-	  self.warn_joyin_ico.setVisible(True)
-	  self.warn_joyin_txt.setVisible(True)
-	else:
-	  self.warn_joyin_ico.setVisible(False)
-	  self.warn_joyin_txt.setVisible(False)
 
     def func_ChangedPage(self, page):
         if (page == 2): #joystick

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>604</width>
-    <height>445</height>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -191,7 +191,7 @@ First, select one at the combo-box bellow:</string>
             <number>1</number>
            </property>
            <property name="maximum">
-            <number>7</number>
+            <number>10</number>
            </property>
           </widget>
          </item>
@@ -330,37 +330,6 @@ First, select one at the combo-box bellow:</string>
        </size>
       </property>
      </spacer>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_6">
-      <item>
-       <widget class="QLabel" name="warn_joyin_ico">
-        <property name="maximumSize">
-         <size>
-          <width>22</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../../icons/qtsixa.qrc">:/icons/bug.png</pixmap>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignHCenter|Qt::AlignTop</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="warn_joyin_txt">
-        <property name="text">
-         <string>Please note that using both 'Joystick' and 'Input' modes can lead to a strange mouse behaviour.
-Use only 'Input' if you really need the Sixaxis to control the mouse.</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
