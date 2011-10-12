@@ -31,7 +31,7 @@
     <widget class="QLabel" name="label_QtSixAv">
      <property name="text">
       <string>&lt;font size=5&gt;QtSixA&lt;/font&gt;&lt;br&gt;
-&lt;font size=4&gt;&lt;b&gt;version 1.5.0&lt;/b&gt;&lt;/font&gt;</string>
+&lt;font size=4&gt;&lt;b&gt;version 1.5.1&lt;/b&gt;&lt;/font&gt;</string>
      </property>
     </widget>
    </item>
