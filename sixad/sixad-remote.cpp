@@ -192,6 +192,9 @@ int main(int argc, char *argv[])
     
     delete ufd;
 
+    shutdown(isk, SHUT_RDWR);
+    shutdown(csk, SHUT_RDWR);
+
     if (debug) syslog(LOG_INFO, "Done");
 
     return 0;
