@@ -54,21 +54,19 @@ void do_search(int ctl, bdaddr_t *bdaddr, int debug)
         if (debug) syslog(LOG_INFO, "Searching...");
 
         num_rsp = hci_inquiry(dev_id, length, num_rsp, NULL, &info, flags);
-        
-        syslog(LOG_INFO, "Found %i devices", num_rsp);
 
         for (i = 0; i < num_rsp; i++) {
                 memcpy(_class, (info+i)->dev_class, 3);
                 
                 if (debug) syslog(LOG_INFO, "Got device %02X | %02X | %02X", _class[0], _class[1], _class[2]);
 
-                //if (_class[1] == 0x25 && (_class[2] == 0x00 || _class[2] == 0x01)) {
+                if (_class[1] == 0x25 && (_class[2] == 0x00 || _class[2] == 0x01)) {
                         bacpy(&dst, &(info+i)->bdaddr);
                         ba2str(&dst, addr);
 
                         if (debug) syslog(LOG_INFO, "Connecting to device %s", addr);
                         do_connect(ctl, &src, &dst, debug);
-                //}
+                }
         }
 
         bt_free(info);
