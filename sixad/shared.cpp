@@ -21,19 +21,20 @@
 #include <cstdio>
 #include <cstring>
 #include <fcntl.h>
+#include <signal.h>
 #include <syslog.h>
 #include <unistd.h>
 #include <sys/socket.h>
 
-volatile bool __active = false;
-volatile bool __io_canceled = false;
+static volatile sig_atomic_t __active = false;
+static volatile sig_atomic_t __io_canceled = false;
 
 bool was_active()
 {
   return __active;
 }
 
-void set_active(bool active)
+void set_active(int active)
 {
   __active = active;
 }
@@ -45,7 +46,7 @@ bool io_canceled()
 
 void sig_term(int /* sig */)
 {
-    __io_canceled = true;
+    __io_canceled = 1;
 }
 
 void open_log(const char *app_name)

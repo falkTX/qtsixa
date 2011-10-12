@@ -75,7 +75,7 @@ struct device_settings {
 };
 
 bool was_active();
-void set_active(bool active);
+void set_active(int active);
 
 bool io_canceled();
 void sig_term(int sig);

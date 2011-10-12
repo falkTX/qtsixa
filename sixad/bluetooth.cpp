@@ -214,24 +214,32 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
     if (!legacy && req.vendor == 0x054c && req.product == 0x0268) {
         if (debug) syslog(LOG_INFO, "Will initiate Sixaxis now");
 
-        dup2(intr_socket, 1);
-        close(intr_socket);
-        dup2(ctrl_socket, 0);
-        close(ctrl_socket);
-
         // New proccess for sixad-sixaxis
-        if (fork()) {
+        pid_t pid = fork();
+
+        if (pid == 0) {
+//             close(ctl);
+//             close(csk);
+//             close(isk);
+
+            dup2(ctrl_socket, 0);
+            close(ctrl_socket);
+            dup2(intr_socket, 1);
+            close(intr_socket);
+
             char bda[18];
             ba2str(&addr_dst, bda);
 
-            char cmd[64];
-            strcpy(cmd, "/usr/sbin/sixad-sixaxis ");
-            strcat(cmd, bda);
-            strcat(cmd, " ");
-            strcat(cmd, debug ? "1" : "0");
+            const char* uinput_sixaxis_cmd = "/usr/sbin/sixad-sixaxis";
+            const char* debug_mode = debug ? "1" : "0";
 
-            if (!system(cmd)) {
-                syslog(LOG_INFO, "cannot exec '%s'", cmd);
+            const char* argv[] = { uinput_sixaxis_cmd, bda, debug_mode, NULL };
+            char* envp[] = { NULL };
+
+            if (execve(argv[0], (char* const*)argv, envp) < 0) {
+                syslog(LOG_INFO, "cannot exec %s", uinput_sixaxis_cmd);
+                close(1);
+                close(0);
             }
         }
 
@@ -241,7 +249,6 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
         if (err < 0)
             syslog(LOG_ERR, "HID create error %d (%s)", errno, strerror(errno));
         close(intr_socket);
-        sleep(1);
         close(ctrl_socket);
     }
     return;

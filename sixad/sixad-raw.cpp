@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
     int i, fd, nr;
     unsigned char buf[128];
-    struct uinput_fd ufd;
+    struct uinput_fd *ufd;
     struct device_settings settings;
 
     if (argc < 2) {
@@ -60,9 +60,9 @@ int main(int argc, char **argv)
 
     ufd = uinput_open(DEV_TYPE_SIXAXIS, "hidraw", settings);
 
-    if (ufd.js < 0 || ufd.mk < 0) {
+    if (ufd->js < 0 || ufd->mk < 0) {
         return 1;
-    } else if (ufd.js == 0 && ufd.mk == 0) {
+    } else if (ufd->js == 0 && ufd->mk == 0) {
         syslog(LOG_ERR, "sixaxis config has no joystick or input mode selected - please choose one!");
         return 1;
     }
@@ -87,18 +87,20 @@ int main(int argc, char **argv)
             msg = false;
         }
 
-        if (settings.joystick.enabled) do_joystick(ufd.js, buf, settings.joystick);
-        if (settings.input.enabled) do_input(ufd.mk, buf, settings.input);
+        if (settings.joystick.enabled) do_joystick(ufd->js, buf, settings.joystick);
+        if (settings.input.enabled) do_input(ufd->mk, buf, settings.input);
     }
 
     if (settings.joystick.enabled) {
-        uinput_close(ufd.js, 0);
+        uinput_close(ufd->js, 0);
     }
     if (settings.input.enabled) {
-        uinput_close(ufd.mk, 0);
+        uinput_close(ufd->mk, 0);
     }
 
     std::cerr <<  "sixad-raw::read(buf) - connection has been broken" << std::endl;
+    
+    delete ufd;
 
     return 0;
 }

@@ -40,7 +40,7 @@ volatile int weak = 0;
 volatile int strong = 0;
 volatile int timeout = 0;
 
-struct uinput_fd ufd;
+struct uinput_fd *ufd;
 
 static void uinput_listen()
 {
@@ -56,7 +56,7 @@ static void uinput_listen()
         }
 
         while (!io_canceled()) {
-                if (read(ufd.js, &event, sizeof event) != sizeof event) {
+                if (read(ufd->js, &event, sizeof event) != sizeof event) {
                         syslog(LOG_INFO, "uinput_listen::Error on uinput read");
                         continue;
                 }
@@ -69,7 +69,7 @@ static void uinput_listen()
                         case UI_FF_UPLOAD:
                                 memset(&upload, 0, sizeof(upload));
                                 upload.request_id = event.value;
-                                if (ioctl(ufd.js, UI_BEGIN_FF_UPLOAD, &upload) < 0) {
+                                if (ioctl(ufd->js, UI_BEGIN_FF_UPLOAD, &upload) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff upload begin");
                                 }
                                 weak = upload.effect.u.rumble.weak_magnitude/0x101;
@@ -90,14 +90,14 @@ static void uinput_listen()
                                     active = true;
                                 }
                                 upload.retval = 0;
-                                if (ioctl(ufd.js, UI_END_FF_UPLOAD, &upload) < 0) {
+                                if (ioctl(ufd->js, UI_END_FF_UPLOAD, &upload) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff upload end");
                                 }
                                 break;
                         case UI_FF_ERASE:
                                 memset(&erase, 0, sizeof(erase));
                                 erase.request_id = event.value;
-                                if (ioctl(ufd.js, UI_BEGIN_FF_ERASE, &erase) < 0) {
+                                if (ioctl(ufd->js, UI_BEGIN_FF_ERASE, &erase) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff erase begin");
                                 }
                                 if (!old_rumble_mode) {
@@ -114,7 +114,7 @@ static void uinput_listen()
                                     active = true;
                                 }
                                 erase.retval = 0;
-                                if (ioctl(ufd.js, UI_END_FF_ERASE, &erase) < 0) {
+                                if (ioctl(ufd->js, UI_END_FF_ERASE, &erase) < 0) {
                                         syslog(LOG_ERR, "uinput_listen::Error on ff erase end");
                                 }
                                 break;
@@ -205,8 +205,8 @@ static void process_sixaxis(struct device_settings settings, const char *mac)
                 break;
             }
 
-            if (settings.joystick.enabled) do_joystick(ufd.js, buf, settings.joystick);
-            if (settings.input.enabled) do_input(ufd.mk, buf, settings.input);
+            if (settings.joystick.enabled) do_joystick(ufd->js, buf, settings.joystick);
+            if (settings.input.enabled) do_input(ufd->mk, buf, settings.input);
 
         } else if (br==50 && buf[0]==0xa1 && buf[1]==0x01 && buf[2]==0xff) {
             if (debug) syslog(LOG_ERR, "Got 0xff Sixaxis buffer, ignored");
@@ -224,7 +224,7 @@ static void process_sixaxis(struct device_settings settings, const char *mac)
 
 int main(int argc, char *argv[])
 {
-    struct pollfd p[3];
+    struct pollfd p[4];
     struct timespec timeout;
     struct device_settings settings;
     struct sigaction sa;
@@ -247,9 +247,9 @@ int main(int argc, char *argv[])
 
     ufd = uinput_open(DEV_TYPE_SIXAXIS, mac, settings);
 
-    if (ufd.js < 0 || ufd.mk < 0) {
+    if (ufd->js < 0 || ufd->mk < 0) {
         return 1;
-    } else if (ufd.js == 0 && ufd.mk == 0) {
+    } else if (ufd->js == 0 && ufd->mk == 0) {
         syslog(LOG_ERR, "sixaxis config has no joystick or input mode selected - please choose one!");
         return 1;
     }
@@ -272,11 +272,11 @@ int main(int argc, char *argv[])
     }
 
     sigfillset(&sigs);
-//    sigdelset(&sigs, SIGCHLD);
-//    sigdelset(&sigs, SIGPIPE);
-//    sigdelset(&sigs, SIGTERM);
-//    sigdelset(&sigs, SIGINT);
-//    sigdelset(&sigs, SIGHUP);
+    sigdelset(&sigs, SIGCHLD);
+    sigdelset(&sigs, SIGPIPE);
+    sigdelset(&sigs, SIGTERM);
+    sigdelset(&sigs, SIGINT);
+    sigdelset(&sigs, SIGHUP);
 
     memset(&sa, 0, sizeof(sa));
     sa.sa_flags = SA_NOCLDSTOP;
@@ -289,18 +289,25 @@ int main(int argc, char *argv[])
     sigaction(SIGCHLD, &sa, NULL);
     sigaction(SIGPIPE, &sa, NULL);
 
-    p[0].fd = 0;
     p[0].events = POLLIN | POLLERR | POLLHUP;
-
-    p[1].fd = 1;
     p[1].events = POLLIN | POLLERR | POLLHUP;
-
-    p[2].fd = ufd.js ? ufd.js : ufd.mk;
     p[2].events = POLLIN | POLLERR | POLLHUP;
+    p[3].events = POLLIN | POLLERR | POLLHUP;
+    
+    p[0].fd = 0;
+    p[1].fd = 1;
+    p[2].fd = ufd->js;
+    p[3].fd = ufd->mk;
+
+    if (!ufd->js)
+      p[2].fd = ufd->mk;
+
+    int idx = (ufd->js && ufd->mk) ? 4 : 3;
 
     while (!io_canceled()) {
-        int i, idx = 3;
-        for (i = 0; i < idx; i++)
+        int i;
+
+        for (i = 0; i < 4; i++)
             p[i].revents = 0;
 
         timeout.tv_sec = 1;
@@ -313,24 +320,25 @@ int main(int argc, char *argv[])
             process_sixaxis(settings, mac);
         }
 
-        events = p[0].revents | p[1].revents | p[2].revents;
+        events = p[0].revents | p[1].revents | p[2].revents | p[3].revents;
 
         if (events & (POLLERR | POLLHUP)) {
+            sig_term(0);
             break;
         }
     }
 
     if (settings.rumble.enabled) {
       if (pthread_cancel(uinput_listen_thread)) {
-              syslog(LOG_ERR, "Error canceling uinput listen thread");
-      } else if (pthread_join(uinput_listen_thread, NULL)) {
-              syslog(LOG_ERR, "Error joining uinput listen thread");
+        if (pthread_join(uinput_listen_thread, NULL)) {
+          syslog(LOG_ERR, "Error canceling uinput listen thread");
+        }
       }
       if (settings.rumble.old_mode) {
           if (pthread_cancel(rumble_listen_thread)) {
+            if (pthread_join(rumble_listen_thread, NULL)) {
               syslog(LOG_ERR, "Error canceling rumble listen thread");
-          } else if (pthread_join(rumble_listen_thread, NULL)) {
-              syslog(LOG_ERR, "Error joining rumble listen thread");
+            }
           }
       }
     }
@@ -338,11 +346,18 @@ int main(int argc, char *argv[])
     if (debug) syslog(LOG_INFO, "Closing uinput...");
 
     if (settings.joystick.enabled) {
-        uinput_close(ufd.js, debug);
+        uinput_close(ufd->js, debug);
     }
     if (settings.input.enabled) {
-        uinput_close(ufd.mk, debug);
+        uinput_close(ufd->mk, debug);
     }
+
+    delete ufd;
+    
+    do_rumble(csk, 10, 0xff, 0xff, 0x01);
+
+    shutdown(isk, SHUT_RDWR);
+    shutdown(csk, SHUT_RDWR);
 
     if (debug) syslog(LOG_INFO, "Done");
 

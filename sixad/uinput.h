@@ -33,7 +33,7 @@ struct uinput_fd {
     int mk;
 };
 
-struct uinput_fd uinput_open(int DEV_TYPE, const char *mac, struct device_settings settings);
+struct uinput_fd *uinput_open(int DEV_TYPE, const char *mac, struct device_settings settings);
 int uinput_close(int fd, int debug=0);
 int uinput_send(int fd, unsigned short type, unsigned short code, int value);
 

@@ -35,7 +35,7 @@ int timeout = 30;
 
 volatile bool active = false;
 
-struct uinput_fd ufd;
+struct uinput_fd *ufd;
 
 static int get_time()
 {
@@ -77,9 +77,9 @@ static void process_remote(struct device_settings settings, const char *mac, int
         if (br < 0) {
             break;
         } else if (br==13 && buf[0]==0xa1 && buf[1]==0x01) { //only continue if we've got a Remote
-            if (settings.joystick.enabled) do_joystick(ufd.js, buf, settings.joystick);
-            if (settings.remote.enabled) do_remote(ufd.mk, buf, modes);
-            if (settings.input.enabled) do_input(ufd.mk, buf, settings.input);
+            if (settings.joystick.enabled) do_joystick(ufd->js, buf, settings.joystick);
+            if (settings.remote.enabled) do_remote(ufd->mk, buf, modes);
+            if (settings.input.enabled) do_input(ufd->mk, buf, settings.input);
         } else {
             if (debug) syslog(LOG_ERR, "Non-Remote packet received and ignored (0x%02x|0x%02x|0x%02x)", buf[0], buf[1], buf[2]);
         }
@@ -117,9 +117,9 @@ int main(int argc, char *argv[])
 
     ufd = uinput_open(DEV_TYPE_REMOTE, mac, settings);
 
-    if (ufd.js < 0 || ufd.mk < 0) {
+    if (ufd->js < 0 || ufd->mk < 0) {
         return 1;
-    } else if (ufd.js == 0 && ufd.mk == 0) {
+    } else if (ufd->js == 0 && ufd->mk == 0) {
         syslog(LOG_ERR, "remote config has no joystick or input mode selected - please choose one!");
         return 1;
     }
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
     p[1].fd = 1;
     p[1].events = POLLIN | POLLERR | POLLHUP;
 
-    p[2].fd = ufd.mk ? ufd.mk : ufd.js;
+    p[2].fd = ufd->mk ? ufd->mk : ufd->js;
     p[2].events = POLLIN | POLLERR | POLLHUP;
 
     while (!io_canceled()) {
@@ -184,11 +184,13 @@ int main(int argc, char *argv[])
     if (debug) syslog(LOG_INFO, "Closing uinput...");
 
     if (settings.joystick.enabled) {
-        uinput_close(ufd.js, debug);
+        uinput_close(ufd->js, debug);
     }
     if (settings.remote.enabled || settings.input.enabled) {
-        uinput_close(ufd.mk, debug);
+        uinput_close(ufd->mk, debug);
     }
+    
+    delete ufd;
 
     if (debug) syslog(LOG_INFO, "Done");
 

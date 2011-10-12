@@ -39,6 +39,10 @@ static void cmd_reset(int ctl, int hdev)
 }
 #endif
 
+static void sig_hup(int sig)
+{
+}
+
 int main(int argc, char *argv[])
 {
     struct sigaction sa;
@@ -86,17 +90,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_flags = SA_NOCLDSTOP;
-
-    sa.sa_handler = sig_term;
-    sigaction(SIGTERM, &sa, NULL);
-    sigaction(SIGINT, &sa, NULL);
-
-    sa.sa_handler = SIG_IGN;
-    sigaction(SIGCHLD, &sa, NULL);
-    sigaction(SIGPIPE, &sa, NULL);
-
     if (remote) {
         // BD Remote only
 
@@ -126,6 +119,19 @@ int main(int argc, char *argv[])
             close(ctl);
             return 1;
         }
+
+        memset(&sa, 0, sizeof(sa));
+        sa.sa_flags = SA_NOCLDSTOP;
+
+        sa.sa_handler = sig_term;
+        sigaction(SIGTERM, &sa, NULL);
+        sigaction(SIGINT, &sa, NULL);
+        sa.sa_handler = sig_hup;
+        sigaction(SIGHUP, &sa, NULL);
+
+        sa.sa_handler = SIG_IGN;
+        sigaction(SIGCHLD, &sa, NULL);
+        sigaction(SIGPIPE, &sa, NULL);
 
         syslog(LOG_INFO, "sixad started, press the PS button now");
 
