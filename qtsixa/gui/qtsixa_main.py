@@ -902,7 +902,7 @@ class MainW(QMainWindow, ui_qtsixa_mainw.Ui_QtSixAMainW):
         else: shared.app.setQuitOnLastWindowClosed(True)
 
     def func_UpdateTrayTooltip(self):
-        self.trayTooltip = "<b> QtSixA 1.5.0 (Unfinished Beta!) </b><br>"
+        self.trayTooltip = "<b> QtSixA 1.5.1 </b><br>"
         self.trayTooltip += "<p>"
 
         if (self.usb_number_1 == "") and (self.hidd_number_1 == ""):

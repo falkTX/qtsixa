@@ -146,7 +146,7 @@ $0
   ;;
 
   --version|-version|version|-v)
-echo "[Qt]SixA Daemon - version 1.5.0"
+echo "[Qt]SixA Daemon - version 1.5.1"
   ;;
 
   *)

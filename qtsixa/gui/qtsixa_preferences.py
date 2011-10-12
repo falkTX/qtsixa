@@ -109,7 +109,7 @@ class PreferencesW(QDialog, ui_qtsixa_preferencesw.Ui_PreferencesW):
         stream.setCodec("UTF-8")
         stream << ("<?xml version='1.0' encoding='UTF-8'?>\n"
                     "<!DOCTYPE QTSIXA>\n"
-                    "<QTSIXA VERSION='1.5.0'>\n"
+                    "<QTSIXA VERSION='1.5.1'>\n"
                     " <Configuration>\n"
                     "   <Main>\n"
                     "     <Show-Warnings>%s</Show-Warnings>\n"

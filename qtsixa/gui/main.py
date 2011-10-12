@@ -17,7 +17,7 @@ if __name__ == '__main__':
   #For easy debugging, print version information to terminal
   print "Qt version:", QT_VERSION_STR
   print "PyQt version:", PYQT_VERSION_STR
-  print "QtSixA version: 1.5.0"
+  print "QtSixA version: 1.5.1"
 
   #Check for root tool
   shared.ROOT = getoutput("qtsixa "+"--get-root")
