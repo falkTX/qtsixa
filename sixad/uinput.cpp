@@ -82,6 +82,13 @@ struct uinput_fd *uinput_open(int DEV_TYPE, const char *mac, struct device_setti
         dev.id.product = 0x0306;
         dev.id.version = 0x0100;
         dev.id.bustype = BUS_VIRTUAL;
+    } else if (DEV_TYPE == DEV_TYPE_3IN1) {
+        strcpy(dev_name, "Brooklyn 3in1 KeyMote");
+        snprintf(dev.name, sizeof(dev.name), "%s", dev_name);
+        dev.id.vendor = 0x062a;
+        dev.id.product = 0x0818;
+        dev.id.version = 0x0100;
+        dev.id.bustype = BUS_VIRTUAL;
     } else {
         strcpy(dev_name, "Unkown Device (");
         strcat(dev_name, mac);

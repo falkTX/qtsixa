@@ -24,7 +24,8 @@
 #define MAX_RUMBLE_EFFECTS 16
 
 #define DEV_TYPE_SIXAXIS 1
-#define DEV_TYPE_REMOTE 2
+#define DEV_TYPE_REMOTE  2
+#define DEV_TYPE_3IN1    3
 
 #define AXIS_PADDING 10
 

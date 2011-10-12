@@ -12,6 +12,7 @@ sixad_bins:
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) sixad-sixaxis.cpp sixaxis.cpp shared.cpp uinput.cpp textfile.cpp -o bins/sixad-sixaxis -lpthread -lrt
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) sixad-remote.cpp remote.cpp shared.cpp uinput.cpp textfile.cpp -o bins/sixad-remote -lrt
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) sixad-raw.cpp sixaxis.cpp shared.cpp uinput.cpp textfile.cpp -o bins/sixad-raw
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) sixad-3in1.cpp sixaxis.cpp shared.cpp uinput.cpp textfile.cpp -o bins/sixad-3in1
 
 clean:
 	rm -f *~ bins/*
@@ -31,6 +32,7 @@ install:
 	install -m 755 bins/sixad-bin $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-sixaxis $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
+	install -m 755 bins/sixad-3in1 $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
 	install -m 755 sixad-dbus-blocker $(DESTDIR)/usr/sbin/
 	@echo "Please run '[sudo] make install-system' now if you're installing from source"
