@@ -17,9 +17,6 @@ install:
 	$(MAKE) install -C utils
 	$(MAKE) install -C sixad
 
-install-system:
-	$(MAKE) install-system -C sixad
-
 uninstall:
 	$(MAKE) uninstall -C sixad
 	$(MAKE) uninstall -C utils

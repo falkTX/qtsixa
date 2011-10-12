@@ -35,9 +35,6 @@ install:
 	install -m 755 bins/sixad-3in1 $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
 	install -m 755 sixad-dbus-blocker $(DESTDIR)/usr/sbin/
-	@echo "Please run '[sudo] make install-system' now if you're installing from source"
-
-install-system:
 	@chmod 777 -R $(DESTDIR)/var/lib/sixad/
 	@echo "Installation is Complete!"
 
