@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>710</width>
-    <height>461</height>
+    <height>462</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -523,7 +523,7 @@ This way you won't need to apply a Sixaxis profile to play that game with it.</s
           </item>
           <item>
            <property name="text">
-            <string notr="true">Super Tux Kart</string>
+            <string notr="true">Super Tux Kart (0.5 only)</string>
            </property>
           </item>
          </widget>
