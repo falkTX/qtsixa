@@ -380,9 +380,12 @@ void do_input(int fd, unsigned char* buf, struct dev_input input)
 
 void do_rumble(int csk, int led_n, int weak, int strong, int timeout)
 {
-    unsigned char buf[128];
     unsigned char setrumble[] = {
+#ifdef GASIA_GAMEPAD_HACKS
+        0x92,
+#else
         0x52, /* HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUTPUT */
+#endif
         0x01,
         0x00, 0x00, 0x00, 0x00, 0x00,   // rumble values [0x00, right-timeout, right-force, left-timeout, left-force]
         0x00, 0x00, 0x00, 0x00, 0x1E,   // 0x02=LED1 .. 0x10=LED4
@@ -419,22 +422,34 @@ void do_rumble(int csk, int led_n, int weak, int strong, int timeout)
 
     setrumble[11] = ledpattern[led_n]; //keep old led
     send(csk, setrumble, sizeof(setrumble), 0);
+#ifndef GASIA_GAMEPAD_HACKS
+    unsigned char buf[128];
     recv(csk, buf, sizeof(buf), 0); //MSG_DONTWAIT?
+#endif
 }
 
 int set_sixaxis_led(int csk, struct dev_led led, int rumble)
 {
-    int i, led_n, led_number;
+    int led_n, led_number;
+
+#ifndef GASIA_GAMEPAD_HACKS
+    int i;
     unsigned char buf[128];
+#endif
+
     unsigned char setleds[] = {
+#ifdef GASIA_GAMEPAD_HACKS
+        0x92,
+#else
         0x52, /* HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUTPUT */
+#endif
         0x01,
-        0x00, 0x00, 0x00, 0x00, 0x00,	// rumble values [0x00, right-timeout, right-force, left-timeout, left-force]
-        0x00, 0x00, 0x00, 0x00, 0x1E,	// 0x02=LED1 .. 0x10=LED4
-        0xff, 0x27, 0x10, 0x00, 0x32,	// LED 4
-        0xff, 0x27, 0x10, 0x00, 0x32,	// LED 3
-        0xff, 0x27, 0x10, 0x00, 0x32,	// LED 2
-        0xff, 0x27, 0x10, 0x00, 0x32,	// LED 1
+        0x00, 0x00, 0x00, 0x00, 0x00,   // rumble values [0x00, right-timeout, right-force, left-timeout, left-force]
+        0x00, 0x00, 0x00, 0x00, 0x1E,   // 0x02=LED1 .. 0x10=LED4
+        0xff, 0x27, 0x10, 0x00, 0x32,   // LED 4
+        0xff, 0x27, 0x10, 0x00, 0x32,   // LED 3
+        0xff, 0x27, 0x10, 0x00, 0x32,   // LED 2
+        0xff, 0x27, 0x10, 0x00, 0x32,   // LED 1
         0x00, 0x00, 0x00, 0x00, 0x00
     };
     const unsigned char ledpattern[11] = {
@@ -460,6 +475,7 @@ int set_sixaxis_led(int csk, struct dev_led led, int rumble)
     } else
         led_n = 0;
 
+#ifndef GASIA_GAMEPAD_HACKS
     if (led.enabled && led.anim)
     {
         /* Sixaxis LED animation - Way Cool!! */
@@ -523,12 +539,15 @@ int set_sixaxis_led(int csk, struct dev_led led, int rumble)
             recv(csk, buf, sizeof(buf), 0);
         }
     }
+#endif
 
     /* set LEDs (final) */
     setleds[11] = ledpattern[led_n];
     if (rumble) setleds[3] = setleds[4] = setleds[5] = setleds[6] = 0x00;
     send(csk, setleds, sizeof(setleds), 0);
+#ifndef GASIA_GAMEPAD_HACKS
     recv(csk, buf, sizeof(buf), 0);
+#endif
 
     return led_n;
 }

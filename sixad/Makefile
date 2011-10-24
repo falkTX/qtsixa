@@ -4,6 +4,12 @@ CXX ?= g++
 CXXFLAGS ?= -O2 -Wall
 LDFLAGS += -Wl,-Bsymbolic-functions
 
+GASIA_GAMEPAD_HACKS = false # Set to 'true' to enable hacks
+
+ifeq ($(GASIA_GAMEPAD_HACKS),true)
+CXXFLAGS += -DGASIA_GAMEPAD_HACKS
+endif
+
 all: sixad_bins
 
 sixad_bins:
@@ -35,6 +41,13 @@ install:
 	install -m 755 bins/sixad-3in1 $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
 	install -m 755 sixad-dbus-blocker $(DESTDIR)/usr/sbin/
+
+ifeq "$(wildcard /usr/bin/python2 )" ""
+else
+	# Python2 force
+	sed -i "s/env python/env python2/" $(DESTDIR)/usr/sbin/sixad-dbus-blocker
+endif
+
 	@chmod 777 -R $(DESTDIR)/var/lib/sixad/
 	@echo "Installation is Complete!"
 

@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
     p[1].events = POLLIN | POLLERR | POLLHUP;
     p[2].events = POLLIN | POLLERR | POLLHUP;
     p[3].events = POLLIN | POLLERR | POLLHUP;
-    
+
     p[0].fd = 0;
     p[1].fd = 1;
     p[2].fd = ufd->js;
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
     }
 
     delete ufd;
-    
+
     do_rumble(csk, 10, 0xff, 0xff, 0x01);
 
     shutdown(isk, SHUT_RDWR);
