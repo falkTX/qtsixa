@@ -352,12 +352,13 @@ int main(int argc, char *argv[])
         uinput_close(ufd->mk, debug);
     }
 
-    delete ufd;
-
     do_rumble(csk, 10, 0xff, 0xff, 0x01);
+    usleep(10*1000);
 
     shutdown(isk, SHUT_RDWR);
     shutdown(csk, SHUT_RDWR);
+
+    delete ufd;
 
     if (debug) syslog(LOG_INFO, "Done");
 
