@@ -18,6 +18,8 @@
 #ifndef SHARED_H
 #define SHARED_H
 
+#include <unistd.h>
+
 struct dev_led {
     bool enabled;
     bool anim;
