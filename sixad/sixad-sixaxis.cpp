@@ -360,6 +360,15 @@ int main(int argc, char *argv[])
 
     delete ufd;
 
+    // hack for force disconnect
+    char cmd[32] = { 0 };
+    strcpy(cmd, "hcitool dc ");
+    strcat(cmd, mac);
+
+    usleep(10*1000);
+    syslog(LOG_INFO, "Force disconnect of \"%s\"", mac);
+    system(cmd);
+
     if (debug) syslog(LOG_INFO, "Done");
 
     return 0;
