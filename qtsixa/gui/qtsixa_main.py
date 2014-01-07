@@ -307,6 +307,8 @@ class MainW(QMainWindow, ui_qtsixa_mainw.Ui_QtSixAMainW):
     def func_DBusDisconnect(self, mode, name, mac):
         bus = dbus.SystemBus()
         try:
+            if (getoutput("qtsixa "+"--check-bluetoothd") == "0"):
+                raise
             bluez_bus = bus.get_object('org.bluez', '/')
             bluez_id = bluez_bus.DefaultAdapter(dbus_interface='org.bluez.Manager')
             adapter_bus = bus.get_object('org.bluez', bluez_id)

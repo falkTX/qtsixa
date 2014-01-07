@@ -59,6 +59,10 @@ fi
 echo "$ROOT"
     ;;
 
+    check-bluetoothd|-check-bluetoothd|--check-bluetoothd)
+ps -e | grep bluetoothd > /dev/null && echo "1" || echo "0"
+    ;;
+
     *)
 if [ -f ./gui/main.py ]; then
   exec python ./gui/main.py "$@"
