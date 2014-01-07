@@ -10,10 +10,10 @@ import commands, os, sys, time
 
 #Check for system arguments
 if (len(sys.argv) == 1):
-  print "Usage:  sixa_lq <addr (text)> <operation (text)> <value (int)> <alsoDisconnect? (bool-int)> <bash command (text, in commas)>"
+  print "Usage:  sixad-lq <addr (text)> <operation (text)> <value (int)> <alsoDisconnect? (bool-int)> <bash command (text, in commas)>"
   exit(0)
 elif (len(sys.argv) < 5):
-  print "Error: Unsufficient arguments"
+  print "Error: Insufficient arguments"
   exit(-1)
 
 
