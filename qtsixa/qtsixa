@@ -74,9 +74,9 @@ ps -e | grep bluetoothd > /dev/null && echo "1" || echo "0"
 
     *)
 if [ -f ./gui/main.py ]; then
-  exec python ./gui/main.py "$@"
+  exec python2 ./gui/main.py "$@"
 else
-  exec python /usr/share/qtsixa/gui/main.py "$@"
+  exec python2 /usr/share/qtsixa/gui/main.py "$@"
 fi
     ;;
 esac
