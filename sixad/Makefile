@@ -4,6 +4,12 @@ CXX ?= g++
 CXXFLAGS ?= -O2 -Wall
 LDFLAGS += -Wl,-Bsymbolic-functions
 
+GASIA_GAMEPAD_HACKS = false # Set to 'true' to enable hacks
+
+ifeq ($(GASIA_GAMEPAD_HACKS),true)
+CXXFLAGS += -DGASIA_GAMEPAD_HACKS
+endif
+
 ifdef SHANWAN_FAKE_DS3
 	CXXFLAGS += -DSHANWAN_FAKE_DS3
 endif
@@ -38,7 +44,6 @@ install:
 	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-3in1 $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
-	install -m 755 sixad-dbus-blocker $(DESTDIR)/usr/sbin/
 	@chmod 777 -R $(DESTDIR)/var/lib/sixad/
 	@echo "Installation is Complete!"
 
@@ -51,5 +56,4 @@ uninstall:
 	rm -f $(DESTDIR)/usr/sbin/sixad-sixaxis
 	rm -f $(DESTDIR)/usr/sbin/sixad-remote
 	rm -f $(DESTDIR)/usr/sbin/sixad-raw
-	rm -f $(DESTDIR)/usr/sbin/sixad-dbus-blocker
 	rm -rf $(DESTDIR)/var/lib/sixad/

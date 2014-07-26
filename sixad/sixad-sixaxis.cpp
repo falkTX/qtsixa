@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
     p[1].events = POLLIN | POLLERR | POLLHUP;
     p[2].events = POLLIN | POLLERR | POLLHUP;
     p[3].events = POLLIN | POLLERR | POLLHUP;
-    
+
     p[0].fd = 0;
     p[1].fd = 1;
     p[2].fd = ufd->js;
@@ -362,12 +362,22 @@ int main(int argc, char *argv[])
         uinput_close(ufd->mk, debug);
     }
 
-    delete ufd;
-    
     do_rumble(csk, 10, 0xff, 0xff, 0x01);
+    usleep(10*1000);
 
     shutdown(isk, SHUT_RDWR);
     shutdown(csk, SHUT_RDWR);
+
+    delete ufd;
+
+    // hack for force disconnect
+    char cmd[32] = { 0 };
+    strcpy(cmd, "hcitool dc ");
+    strcat(cmd, mac);
+
+    usleep(10*1000);
+    syslog(LOG_INFO, "Force disconnect of \"%s\"", mac);
+    system(cmd);
 
     if (debug) syslog(LOG_INFO, "Done");
 
