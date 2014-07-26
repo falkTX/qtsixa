@@ -5,7 +5,7 @@ CXXFLAGS ?= -O2 -Wall
 LDFLAGS += -Wl,-Bsymbolic-functions
 
 ifdef SHANWAN_FAKE_DS3
-	CXXFLAGS += -DGASIA_GAMEPAD_HACKS -DSHANWAN_FAKE_DS3
+	CXXFLAGS += -DSHANWAN_FAKE_DS3
 endif
 
 all: sixad_bins
