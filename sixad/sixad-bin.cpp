@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
 
     open_log("sixad-bin");
     syslog(LOG_INFO, "started");
-    bacpy(&bdaddr, BDADDR_ANY);
+    bdaddr_t tmp = {};
+    bacpy(&bdaddr, &tmp);
 
     ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HIDP);
     if (ctl < 0) {
