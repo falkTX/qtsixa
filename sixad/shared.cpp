@@ -284,7 +284,6 @@ void enable_sixaxis(int csk)
         0x00, 0x00, 0x00
     };
 #else
-    char buf[128];
     unsigned char enable[] = {
         0x53, /* HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE */
         0xf4, 0x42, 0x03, 0x00, 0x00
@@ -293,7 +292,8 @@ void enable_sixaxis(int csk)
 
     /* enable reporting */
     send(csk, enable, sizeof(enable), 0);
-#ifndef GASIA_GAMEPAD_HACKS
+#if !defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
+    char buf[128];
     recv(csk, buf, sizeof(buf), 0);
 #endif
 }

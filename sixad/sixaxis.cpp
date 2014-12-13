@@ -422,7 +422,7 @@ void do_rumble(int csk, int led_n, int weak, int strong, int timeout)
 
     setrumble[11] = ledpattern[led_n]; //keep old led
     send(csk, setrumble, sizeof(setrumble), 0);
-#ifndef GASIA_GAMEPAD_HACKS
+#if !defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
     unsigned char buf[128];
     recv(csk, buf, sizeof(buf), 0); //MSG_DONTWAIT?
 #endif
@@ -432,8 +432,7 @@ int set_sixaxis_led(int csk, struct dev_led led, int rumble)
 {
     int led_n, led_number;
 
-#ifndef GASIA_GAMEPAD_HACKS
-    int i;
+#if !defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
     unsigned char buf[128];
 #endif
 
@@ -480,7 +479,7 @@ int set_sixaxis_led(int csk, struct dev_led led, int rumble)
     {
         /* Sixaxis LED animation - Way Cool!! */
         if (rumble) setleds[3] = setleds[5] = 0xfe;
-        for (i=0; i<4; i++) {  // repeat it 4 times
+        for (int i=0; i<4; i++) {  // repeat it 4 times
             if (rumble) setleds[4] = setleds[6] = 0xff;
             setleds[11] = ledpattern[1];
             send(csk, setleds, sizeof(setleds), 0);
@@ -545,7 +544,7 @@ int set_sixaxis_led(int csk, struct dev_led led, int rumble)
     setleds[11] = ledpattern[led_n];
     if (rumble) setleds[3] = setleds[4] = setleds[5] = setleds[6] = 0x00;
     send(csk, setleds, sizeof(setleds), 0);
-#ifndef GASIA_GAMEPAD_HACKS
+#if !defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
     recv(csk, buf, sizeof(buf), 0);
 #endif
 
