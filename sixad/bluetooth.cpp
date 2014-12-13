@@ -57,7 +57,7 @@ void do_search(int ctl, bdaddr_t *bdaddr, int debug)
 
         for (i = 0; i < num_rsp; i++) {
                 memcpy(_class, (info+i)->dev_class, 3);
-                
+
                 if (debug) syslog(LOG_INFO, "Got device %02X | %02X | %02X", _class[0], _class[1], _class[2]);
 
                 if (_class[1] == 0x25 && (_class[2] == 0x00 || _class[2] == 0x01)) {
@@ -203,7 +203,7 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
         return;
     }
 
-#ifdef GASIA_GAMEPAD_HACKS
+#if defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
     req.vendor  = 0x054c;
     req.product = 0x0268;
     req.version = 0x0100;
@@ -377,7 +377,7 @@ int create_device(int ctl, int csk, int isk)
      req.idle_to   = 1800;
 
 
-#ifdef GASIA_GAMEPAD_HACKS
+#if defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
     req.vendor  = 0x054c;
     req.product = 0x0268;
     req.version = 0x0100;
