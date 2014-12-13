@@ -203,7 +203,7 @@ void l2cap_accept(int ctl, int csk, int isk, int debug, int legacy)
         return;
     }
 
-#ifdef GASIA_GAMEPAD_HACKS
+#if defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
     req.vendor  = 0x054c;
     req.product = 0x0268;
     req.version = 0x0100;
@@ -377,7 +377,7 @@ int create_device(int ctl, int csk, int isk)
      req.idle_to   = 1800;
 
 
-#ifdef GASIA_GAMEPAD_HACKS
+#if defined(GASIA_GAMEPAD_HACKS) || defined(SHANWAN_FAKE_DS3)
     req.vendor  = 0x054c;
     req.product = 0x0268;
     req.version = 0x0100;

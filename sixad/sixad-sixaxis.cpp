@@ -20,6 +20,7 @@
 #include "uinput.h"
 
 #include <cstdlib>
+#include <errno.h>
 #include <iostream>
 #include <poll.h>
 #include <signal.h>
@@ -253,6 +254,15 @@ int main(int argc, char *argv[])
         syslog(LOG_ERR, "sixaxis config has no joystick or input mode selected - please choose one!");
         return 1;
     }
+
+#ifdef SHANWAN_FAKE_DS3
+    timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 50000;  // 0.05 sec.
+
+    if (-1 == setsockopt(csk, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)))
+        syslog(LOG_ERR, "could not set socket read timeout, error: %s", strerror(errno));
+#endif
 
     enable_sixaxis(csk);
     led_n = set_sixaxis_led(csk, settings.led, settings.rumble.enabled);

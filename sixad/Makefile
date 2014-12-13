@@ -10,6 +10,10 @@ ifeq ($(GASIA_GAMEPAD_HACKS),true)
 CXXFLAGS += -DGASIA_GAMEPAD_HACKS
 endif
 
+ifdef SHANWAN_FAKE_DS3
+	CXXFLAGS += -DSHANWAN_FAKE_DS3
+endif
+
 all: sixad_bins
 
 sixad_bins:
@@ -40,7 +44,6 @@ install:
 	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-3in1 $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
-
 	@chmod 777 -R $(DESTDIR)/var/lib/sixad/
 	@echo "Installation is Complete!"
 
