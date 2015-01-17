@@ -5,7 +5,6 @@
 
 DEBUG=0
 LEGACY=0
-BLUETOOTHD=/usr/sbin/bluetoothd
 
 . /etc/default/sixad
 
@@ -49,8 +48,10 @@ $SUDO /sbin/modprobe uinput
 }
 
 bt_start () {
-$SUDO chmod 755 "$BLUETOOTHD"
-if [ -f /lib/udev/rules.d/97-bluetooth-hid2hci.rules ]; then
+$SUDO rm -f /tmp/.sixad-dbus-blocker.pid
+env sleep 1
+
+if [ -f /lib/udev/rules.d/97-bluetooth.rules ]; then
   $SUDO /usr/sbin/bluetoothd --udev
 elif [ -f /etc/rc.d/bluetooth ]; then
   $SUDO /etc/rc.d/bluetooth start
@@ -60,16 +61,11 @@ fi
 }
 
 bt_stop() {
-$SUDO chmod 644 "$BLUETOOTHD"
 if (bluetoothd_running_check); then
   $SUDO pkill -KILL bluetoothd
 fi
-}
 
-bt_start_and_stop () {
-bt_start
-env sleep 2
-bt_stop
+$SUDO /usr/sbin/sixad-dbus-blocker &
 }
 
 case $1 in
@@ -82,7 +78,7 @@ if (sixad_running_check); then
   echo "run '$0 --stop' to stop it"
 else
  if (modprobe_check); then  #Check for root access before running, If NO access, quit
-  bt_start_and_stop
+  bt_stop
   $SUDO /usr/sbin/sixad-bin $DEBUG $LEGACY $REMOTE
  else
   echo "You need admin/root access to run this application"
@@ -101,7 +97,7 @@ bt_start
 REMOTE=1
 bt_device_check
 if (modprobe_check); then  #Check for root access before running, If NO access, quit
-  bt_start_and_stop
+  bt_stop
   $SUDO /usr/sbin/sixad-bin $DEBUG $LEGACY $REMOTE
 else
   echo "You need admin/root access to run this application"

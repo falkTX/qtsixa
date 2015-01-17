@@ -34,6 +34,13 @@ install:
 	install -m 755 bins/sixad-remote $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-3in1 $(DESTDIR)/usr/sbin/
 	install -m 755 bins/sixad-raw $(DESTDIR)/usr/sbin/
+	install -m 755 sixad-dbus-blocker $(DESTDIR)/usr/sbin/
+
+ifeq "$(wildcard /usr/bin/python2 )" ""
+else
+	# Python2 force
+	sed -i "s/env python/env python2/" $(DESTDIR)/usr/sbin/sixad-dbus-blocker
+endif
 
 	@chmod 777 -R $(DESTDIR)/var/lib/sixad/
 	@echo "Installation is Complete!"
@@ -47,4 +54,5 @@ uninstall:
 	rm -f $(DESTDIR)/usr/sbin/sixad-sixaxis
 	rm -f $(DESTDIR)/usr/sbin/sixad-remote
 	rm -f $(DESTDIR)/usr/sbin/sixad-raw
+	rm -f $(DESTDIR)/usr/sbin/sixad-dbus-blocker
 	rm -rf $(DESTDIR)/var/lib/sixad/
