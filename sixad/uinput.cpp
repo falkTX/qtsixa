@@ -116,7 +116,7 @@ struct uinput_fd *uinput_open(int DEV_TYPE, const char *mac, struct device_setti
         int pos;
         for (i=0; i<29; i++) {
             pos = (i >= 16) ? i+AXIS_PADDING : i;
-            if (i >= 0 && i <= 3) {// left & right axis
+/*            if (i >= 0 && i <= 3) {// left & right axis
                 dev.absmax[pos] = 127;
                 dev.absmin[pos] = -127;
             } else if (i == 4) {  // Accelerometer X (reversed)
@@ -125,9 +125,17 @@ struct uinput_fd *uinput_open(int DEV_TYPE, const char *mac, struct device_setti
             } else if (i == 5) {  // Accelerometer Y
                 dev.absmax[pos] = 622;
                 dev.absmin[pos] = 402;
-            } else if (i == 6) {  // Accelerometer Z
+*/
+            if (i == 0 || i == 1 || i == 4 || i == 5) {  // Left/Right Stick Axis
+                dev.absmax[pos] = 127;
+                dev.absmin[pos] = -128;
+/*            } else if (i == 6) {  // Accelerometer Z
                 dev.absmax[pos] = 622;
                 dev.absmin[pos] = 402;
+*/
+            } else if (i == 3 || i == 6) {  // L2/R2 Axis
+                dev.absmax[pos] = 255;
+                dev.absmin[pos] = 0;
             } else if (i == 7) {  // Gyro - Does NOT work
                 dev.absmax[pos] = 127;
                 dev.absmin[pos] = -127;
