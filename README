@@ -14,6 +14,19 @@ Currently sixad supports:
 sixad also registers the hardware's MAC/ID in the device name
 (ex: "PLAYSTATION(R)3 Controller (00:XX:X0:0X:XX)".
 
+
+XPad emulation
+ ------------ 
+
+This version contains a modified sixad which permits xpad event emualtion, USB ID emulation, and device name emulation for "XBOX 360 Wireless Receiver", which is the same as is used for wireless 360 controllers in the standard kernel xpad driver.  This makes a lot of games "Just Work".
+
+To enable the xpad emulation option, add the following to the device/default profile configuration:
+  enable_xpad_emulation 1
+
+Note: The emualtion mode disables the acceleromators and giro as well as sbuttons (buttons as axis) automatically so this should be the only configuration option you will need to set.
+
+Note 2: QtSixa has *not* been updated to cover the additonal options.  You will need to manually add the configuration option to emulate the xpad driver to the configuration files.
+
  -------------------------------------
 
 QtSixA and sixad are licensed under the GNU GPL v2 license.
