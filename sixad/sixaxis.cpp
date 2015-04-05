@@ -203,8 +203,8 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
         uinput_send(fd, EV_ABS, 0, lx);
         uinput_send(fd, EV_ABS, 1, ly);            
         if (joystick.xpad_emulation) {
-            uinput_send(fd, EV_ABS, 4, rx);
-            uinput_send(fd, EV_ABS, 5, ry);
+            uinput_send(fd, EV_ABS, 3, rx);
+            uinput_send(fd, EV_ABS, 4, ry);
         } else {
             uinput_send(fd, EV_ABS, 2, rx);
             uinput_send(fd, EV_ABS, 3, ry);
@@ -243,8 +243,8 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
           set_active(true);
         }
     } else if (joystick.xpad_emulation) {
-        uinput_send(fd, EV_ABS, 3, l2);
-        uinput_send(fd, EV_ABS, 6, r2);
+        uinput_send(fd, EV_ABS, 2, l2);
+        uinput_send(fd, EV_ABS, 5, r2);
 
         if (l2 > 0 || r2 > 0) {
             set_active(true);

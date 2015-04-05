@@ -125,12 +125,12 @@ struct uinput_fd *uinput_open(int DEV_TYPE, const char *mac, struct device_setti
         int pos;
 
         if (settings.joystick.xpad_emulation) {
-            for (i=0; i<29; i++) {
+            for (i=0; i<6; i++) {
                 pos = (i >= 16) ? i+AXIS_PADDING : i;
-                if (i == 0 || i == 1 || i == 4 || i == 5) {  // Left/Right Stick Axis
+                if (i == 0 || i == 1 || i == 3 || i == 4) {  // Left/Right Stick Axis
                     dev.absmax[pos] = 127;
                     dev.absmin[pos] = -128;
-                } else if (i == 3 || i == 6) {  // L2/R2 Axis
+                } else if (i == 2 || i == 5) {  // L2/R2 Axis
                     dev.absmax[pos] = 255;
                     dev.absmin[pos] = 0;
                 } else {
