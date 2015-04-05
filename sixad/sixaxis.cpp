@@ -139,47 +139,58 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
     if (velZ > -30 && velZ < 30) velZ = 0;
 
     if (joystick.buttons) {
-        //part1
-        if (last_jb1 != b1) {
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 0, b1 & 0x01 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 6, b1 & 0x01 ? 1 : 0); //Select button
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 1, b1 & 0x02 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 9, b1 & 0x02 ? 1 : 0);  //Left Stick Click
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 2, b1 & 0x04 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 10, b1 & 0x04 ? 1 : 0);  //Right Stick Click
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 3, b1 & 0x08 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 7, b1 & 0x08 ? 1 : 0);  //Start Button
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 4, b1 & 0x10 ? 1 : 0);  //DPad UP
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 13, b1 & 0x10 ? 1 : 0);  //DPad UP
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 5, b1 & 0x20 ? 1 : 0);  //DPAD Right
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 12, b1 & 0x20 ? 1 : 0);  //DPAD Right
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 6, b1 & 0x40 ? 1 : 0);  //DPad Down
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 14, b1 & 0x40 ? 1 : 0);  //DPad Down
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 7, b1 & 0x80 ? 1 : 0);  //DPad  Left
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 11, b1 & 0x80 ? 1 : 0);  //DPad  Left
-        }
-        //part2
-        if (last_jb2 != b2) {
-/*            uinput_send(fd, EV_KEY, BTN_JOYSTICK +  8, b2 & 0x01 ? 1 : 0); //Left Trigger
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK +  9, b2 & 0x02 ? 1 : 0); //Right Trigger
-*/
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 10, b2 & 0x04 ? 1 : 0); //Left Shoulder
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 4, b2 & 0x04 ? 1 : 0);  //Left Shoulder
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 11, b2 & 0x08 ? 1 : 0); //Right Shoulder
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 5, b2 & 0x08 ? 1 : 0);  //Right Shoulder
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 12, b2 & 0x10 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 3, b2 & 0x10 ? 1 : 0);  //Triangle Button
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 13, b2 & 0x20 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 1, b2 & 0x20 ? 1 : 0);  //Circle Button
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 14, b2 & 0x40 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 0, b2 & 0x40 ? 1 : 0);  //Cross Button
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 15, b2 & 0x80 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 2, b2 & 0x80 ? 1 : 0);  //Square Button
-        }
-        //part3
-        if (last_jb3 != b3) {
-//            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 16, b3 & 0x01 ? 1 : 0);
-            uinput_send(fd, EV_KEY, BTN_JOYSTICK + 8, b3 & 0x01 ? 1 : 0);  //PS Button
+        if(joystick.xpad_emulation) {
+            //part1
+            if (last_jb1 != b1) {
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 6, b1 & 0x01 ? 1 : 0); //Select button ->xpad Back Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 9, b1 & 0x02 ? 1 : 0);  //Left Stick Click
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 10, b1 & 0x04 ? 1 : 0);  //Right Stick Click
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 7, b1 & 0x08 ? 1 : 0);  //Start Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 13, b1 & 0x10 ? 1 : 0);  //DPad UP
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 12, b1 & 0x20 ? 1 : 0);  //DPAD Right
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 14, b1 & 0x40 ? 1 : 0);  //DPad Down
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 11, b1 & 0x80 ? 1 : 0);  //DPad  Left
+            }
+            //part2
+            if (last_jb2 != b2) {
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 4, b2 & 0x04 ? 1 : 0);  //Left Shoulder
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 5, b2 & 0x08 ? 1 : 0);  //Right Shoulder
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 3, b2 & 0x10 ? 1 : 0);  //Triangle Button -> xpad Y Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 1, b2 & 0x20 ? 1 : 0);  //Circle Button -> xpad B Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 0, b2 & 0x40 ? 1 : 0);  //Cross Button -> xpad A Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 2, b2 & 0x80 ? 1 : 0);  //Square Button -> xpad X Button
+            }
+            //part3
+            if (last_jb3 != b3) {
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 8, b3 & 0x01 ? 1 : 0);  //PS Button -> xpad Guide Button
+            }
+        } else {
+            //part1
+            if (last_jb1 != b1) {
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 0, b1 & 0x01 ? 1 : 0);  //Select button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 1, b1 & 0x02 ? 1 : 0);  //Left Stick Click
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 2, b1 & 0x04 ? 1 : 0);  //Right Stick Click
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 3, b1 & 0x08 ? 1 : 0);  //Start Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 4, b1 & 0x10 ? 1 : 0);  //DPad UP
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 5, b1 & 0x20 ? 1 : 0);  //DPAD Right
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 6, b1 & 0x40 ? 1 : 0);  //DPad Down
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 7, b1 & 0x80 ? 1 : 0);  //DPad  Left
+            }
+            //part2
+            if (last_jb2 != b2) {
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK +  8, b2 & 0x01 ? 1 : 0);  //Left Trigger
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK +  9, b2 & 0x02 ? 1 : 0);  //Right Trigger
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 10, b2 & 0x04 ? 1 : 0);  //Left Shoulder
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 11, b2 & 0x08 ? 1 : 0);  //Right Shoulder
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 12, b2 & 0x10 ? 1 : 0);  //Triangle Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 13, b2 & 0x20 ? 1 : 0);  //Circle Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 14, b2 & 0x40 ? 1 : 0);  //Cross Button
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 15, b2 & 0x80 ? 1 : 0);  //Square Button
+            }
+            //part3
+            if (last_jb3 != b3) {
+                uinput_send(fd, EV_KEY, BTN_JOYSTICK + 16, b3 & 0x01 ? 1 : 0);  //PS Button
+            }
         }
 
         if (b1 > 0 || b2 > 0 || b3 > 0) {
@@ -190,11 +201,14 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
     //axis
     if (joystick.axis) {
         uinput_send(fd, EV_ABS, 0, lx);
-        uinput_send(fd, EV_ABS, 1, ly);
-//        uinput_send(fd, EV_ABS, 2, rx);
-        uinput_send(fd, EV_ABS, 4, rx);
-//        uinput_send(fd, EV_ABS, 3, ry);
-        uinput_send(fd, EV_ABS, 5, ry);
+        uinput_send(fd, EV_ABS, 1, ly);            
+        if (joystick.xpad_emulation) {
+            uinput_send(fd, EV_ABS, 4, rx);
+            uinput_send(fd, EV_ABS, 5, ry);
+        } else {
+            uinput_send(fd, EV_ABS, 2, rx);
+            uinput_send(fd, EV_ABS, 3, ry);
+        }
 
         if (lx != 0 || ly != 0 || rx != 0 || ry != 0) {
           set_active(true);
@@ -202,7 +216,7 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
     }
 
     //accelerometer RAW
-    if (joystick.accel) {
+    if (joystick.accel && !joystick.xpad_emulation) {
         uinput_send(fd, EV_ABS, 4, acx);
         uinput_send(fd, EV_ABS, 5, acy);
         uinput_send(fd, EV_ABS, 6, acz);
@@ -210,15 +224,13 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
     }
 
     //buttons (sensible, as axis)
-    if (joystick.sbuttons) {
+    if (joystick.sbuttons && !joystick.xpad_emulation) {
         uinput_send(fd, EV_ABS, 8, up);
         uinput_send(fd, EV_ABS, 9, right);
         uinput_send(fd, EV_ABS, 10, down);
         uinput_send(fd, EV_ABS, 11, left);
-//        uinput_send(fd, EV_ABS, 12, l2);
-        uinput_send(fd, EV_ABS, 3, l2);
-//        uinput_send(fd, EV_ABS, 13, r2);
-        uinput_send(fd, EV_ABS, 6, r2);
+        uinput_send(fd, EV_ABS, 12, l2);
+        uinput_send(fd, EV_ABS, 13, r2);
         uinput_send(fd, EV_ABS, 14, l1);
         uinput_send(fd, EV_ABS, 15, r1);
 
@@ -230,24 +242,31 @@ void do_joystick(int fd, unsigned char* buf, struct dev_joystick joystick)
         if (up > 0 || right > 0 || down > 0 || left > 0 || l2 > 0 || r2 > 0 || l1 > 0 || r1 > 0 || tri > 0 || cir > 0 || cro > 0 || squ > 0 ) {
           set_active(true);
         }
+    } else if (joystick.xpad_emulation) {
+        uinput_send(fd, EV_ABS, 3, l2);
+        uinput_send(fd, EV_ABS, 6, r2);
+
+        if (l2 > 0 || r2 > 0) {
+            set_active(true);
+        }
     }
 
     //acceleration
-    if (joystick.accon) {
+    if (joystick.accon  && !joystick.xpad_emulation) {
         uinput_send(fd, EV_ABS, 20+AXIS_PADDING, accX);
         uinput_send(fd, EV_ABS, 21+AXIS_PADDING, accY);
         uinput_send(fd, EV_ABS, 22+AXIS_PADDING, accZ);
     }
 
     //speed
-    if (joystick.speed) {
+    if (joystick.speed && !joystick.xpad_emulation) {
         uinput_send(fd, EV_ABS, 23+AXIS_PADDING, velX);
         uinput_send(fd, EV_ABS, 24+AXIS_PADDING, velY);
         uinput_send(fd, EV_ABS, 25+AXIS_PADDING, velZ);
     }
 
     //position
-    if (joystick.pos) {
+    if (joystick.pos && !joystick.xpad_emulation) {
         uinput_send(fd, EV_ABS, 26+AXIS_PADDING, posX);
         uinput_send(fd, EV_ABS, 27+AXIS_PADDING, posY);
         uinput_send(fd, EV_ABS, 28+AXIS_PADDING, posZ);
