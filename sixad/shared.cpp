@@ -77,6 +77,7 @@ struct device_settings init_values(const char *addr)
         settings.joystick.accon = textfile_get_int(pathname, "enable_accon", 0);
         settings.joystick.speed = textfile_get_int(pathname, "enable_speed", 0);
         settings.joystick.pos = textfile_get_int(pathname, "enable_pos", 0);
+        settings.joystick.xpad_emulation = textfile_get_int(pathname, "enable_xpad_emulation", 0);
 
         settings.remote.enabled = textfile_get_int(pathname, "enable_remote", 1);
         settings.remote.numeric = textfile_get_int(pathname, "remote_numberic", 1);
@@ -139,6 +140,7 @@ struct device_settings init_values(const char *addr)
         settings.joystick.accon = textfile_get_int(pathname, "enable_accon", 0);
         settings.joystick.speed = textfile_get_int(pathname, "enable_speed", 0);
         settings.joystick.pos = textfile_get_int(pathname, "enable_pos", 0);
+        settings.joystick.xpad_emulation = textfile_get_int(pathname, "enable_xpad_emulation", 0);
 
         settings.remote.enabled = textfile_get_int(pathname, "enable_remote", 1);
         settings.remote.numeric = textfile_get_int(pathname, "remote_numberic", 1);
@@ -200,6 +202,7 @@ struct device_settings init_values(const char *addr)
         settings.joystick.accon = 0;
         settings.joystick.speed = 0;
         settings.joystick.pos = 0;
+        settings.joystick.xpad_emulation = 0;
 
         settings.remote.enabled = 1;
         settings.remote.numeric = 1;

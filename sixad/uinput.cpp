@@ -65,14 +65,23 @@ struct uinput_fd *uinput_open(int DEV_TYPE, const char *mac, struct device_setti
     memset(&dev_mk, 0, sizeof(dev_mk));
 
     if (DEV_TYPE == DEV_TYPE_SIXAXIS) {
-        strcpy(dev_name, "PLAYSTATION(R)3 Controller (");
-        strcat(dev_name, mac);
-        strcat(dev_name, ")");
-        snprintf(dev.name, sizeof(dev.name), "%s", dev_name);
-        dev.id.vendor = 0x054c;
-        dev.id.product = 0x0268;
-        dev.id.version = 0x0100;
-        dev.id.bustype = BUS_VIRTUAL;
+        if (settings.joystick.xpad_emulation) {
+            strcpy(dev_name, "Xbox 360 Wireless Receiver");
+            snprintf(dev.name, sizeof(dev.name), "%s", dev_name);
+            dev.id.vendor = 0x045e;
+            dev.id.product = 0x719;
+            dev.id.version = 0x100;
+            dev.id.bustype = BUS_VIRTUAL;
+        } else {
+            strcpy(dev_name, "PLAYSTATION(R)3 Controller (");
+            strcat(dev_name, mac);
+            strcat(dev_name, ")");
+            snprintf(dev.name, sizeof(dev.name), "%s", dev_name);
+            dev.id.vendor = 0x054c;
+            dev.id.product = 0x0268;
+            dev.id.version = 0x0100;
+            dev.id.bustype = BUS_VIRTUAL;
+        }
     } else if (DEV_TYPE == DEV_TYPE_REMOTE) {
         strcpy(dev_name, "PLAYSTATION(R)3 Remote (");
         strcat(dev_name, mac);
@@ -114,43 +123,65 @@ struct uinput_fd *uinput_open(int DEV_TYPE, const char *mac, struct device_setti
 
         // enable all axis and accelerometers
         int pos;
-        for (i=0; i<29; i++) {
-            pos = (i >= 16) ? i+AXIS_PADDING : i;
-            if (i >= 0 && i <= 3) {// left & right axis
-                dev.absmax[pos] = 127;
-                dev.absmin[pos] = -127;
-            } else if (i == 4) {  // Accelerometer X (reversed)
-                dev.absmax[pos] = -402;
-                dev.absmin[pos] = -622;
-            } else if (i == 5) {  // Accelerometer Y
-                dev.absmax[pos] = 622;
-                dev.absmin[pos] = 402;
-            } else if (i == 6) {  // Accelerometer Z
-                dev.absmax[pos] = 622;
-                dev.absmin[pos] = 402;
-            } else if (i == 7) {  // Gyro - Does NOT work
-                dev.absmax[pos] = 127;
-                dev.absmin[pos] = -127;
-            } else if (i >= 8 && i <= 19) {  // Buttons
-                dev.absmax[pos] = 255;
-                dev.absmin[pos] = -255;
-            } else if (i >= 20 && i <= 22) { // Acceleration
-                dev.absmax[pos] = 1250;
-                dev.absmin[pos] = -1250;
-            } else if (i >= 23 && i <= 25) { // Speed
-                dev.absmax[pos] = 1250;
-                dev.absmin[pos] = -1250;
-            } else if (i >= 26 && i <= 28) { // Position
-                dev.absmax[pos] = 1250;
-                dev.absmin[pos] = -1250;
-            } else {
-                dev.absmax[pos] = 32767;
-                dev.absmin[pos] = -32767;
-            }
 
-            if (ioctl(ufd->js, UI_SET_ABSBIT, pos) < 0) {
-                syslog(LOG_ERR, "uinput_open()::ioctl(ABS_AXIS) - failed to register axis %i", pos);
-                goto error;
+        if (settings.joystick.xpad_emulation) {
+            for (i=0; i<29; i++) {
+                pos = (i >= 16) ? i+AXIS_PADDING : i;
+                if (i == 0 || i == 1 || i == 4 || i == 5) {  // Left/Right Stick Axis
+                    dev.absmax[pos] = 127;
+                    dev.absmin[pos] = -128;
+                } else if (i == 3 || i == 6) {  // L2/R2 Axis
+                    dev.absmax[pos] = 255;
+                    dev.absmin[pos] = 0;
+                } else {
+                    dev.absmax[pos] = 32767;
+                    dev.absmin[pos] = -32767;
+                }
+
+                if (ioctl(ufd->js, UI_SET_ABSBIT, pos) < 0) {
+                    syslog(LOG_ERR, "uinput_open()::ioctl(ABS_AXIS) - failed to register axis %i", pos);
+                    goto error;
+                }
+            }
+        } else {
+            for (i=0; i<29; i++) {
+                pos = (i >= 16) ? i+AXIS_PADDING : i;
+                if (i >= 0 && i <= 3) {// left & right axis
+                    dev.absmax[pos] = 127;
+                    dev.absmin[pos] = -127;
+                } else if (i == 4) {  // Accelerometer X (reversed)
+                    dev.absmax[pos] = -402;
+                    dev.absmin[pos] = -622;
+                } else if (i == 5) {  // Accelerometer Y
+                    dev.absmax[pos] = 622;
+                    dev.absmin[pos] = 402;
+                } else if (i == 6) {  // Accelerometer Z
+                    dev.absmax[pos] = 622;
+                    dev.absmin[pos] = 402;
+                } else if (i == 7) {  // Gyro - Does NOT work
+                    dev.absmax[pos] = 127;
+                    dev.absmin[pos] = -127;
+                } else if (i >= 8 && i <= 19) {  // Buttons
+                    dev.absmax[pos] = 255;
+                    dev.absmin[pos] = -255;
+                } else if (i >= 20 && i <= 22) { // Acceleration
+                    dev.absmax[pos] = 1250;
+                    dev.absmin[pos] = -1250;
+                } else if (i >= 23 && i <= 25) { // Speed
+                    dev.absmax[pos] = 1250;
+                    dev.absmin[pos] = -1250;
+                } else if (i >= 26 && i <= 28) { // Position
+                    dev.absmax[pos] = 1250;
+                    dev.absmin[pos] = -1250;
+                } else {
+                    dev.absmax[pos] = 32767;
+                    dev.absmin[pos] = -32767;
+                }
+
+                if (ioctl(ufd->js, UI_SET_ABSBIT, pos) < 0) {
+                    syslog(LOG_ERR, "uinput_open()::ioctl(ABS_AXIS) - failed to register axis %i", pos);
+                    goto error;
+                }
             }
         }
 
