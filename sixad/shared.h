@@ -36,6 +36,7 @@ struct dev_joystick {
     bool accon;
     bool speed;
     bool pos;
+    bool xpad_emulation;
 };
 
 struct dev_remote {
