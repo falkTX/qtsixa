@@ -354,7 +354,6 @@ int main(int argc, char *argv[])
 
     delete ufd;
 
-    do_rumble(csk, 10, 0xff, 0xff, 0x01);
 
     shutdown(isk, SHUT_RDWR);
     shutdown(csk, SHUT_RDWR);
