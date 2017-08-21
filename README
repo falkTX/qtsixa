@@ -1,3 +1,9 @@
+I've hacked the code a bit to make sixad work with original and fake GASIA controllers at the same time 
+Using it for RetroPie (tested with one original and one fake over bluetooth). 
+
+Original README follows:
+-------------------------------------
+
 QtSixA is the Sixaxis Joystick Manager
  ------------------------------------
 

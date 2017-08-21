@@ -268,8 +268,7 @@ int get_joystick_number()
 
 void enable_sixaxis(int csk)
 {
-#ifdef GASIA_GAMEPAD_HACKS
-    unsigned char enable[] = {
+    unsigned char enable_gasia[] = {
         0xA2,
         0x01,
         0x00, 0x00, 0x00, 0x00, 0x00,   // rumble values [0x00, right-timeout, right-force, left-timeout, left-force]
@@ -283,17 +282,12 @@ void enable_sixaxis(int csk)
         0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00
     };
-#else
-    char buf[128];
-    unsigned char enable[] = {
+
+    unsigned char enable_orig[] = {
         0x53, /* HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE */
         0xf4, 0x42, 0x03, 0x00, 0x00
     };
-#endif
 
-    /* enable reporting */
-    send(csk, enable, sizeof(enable), 0);
-#ifndef GASIA_GAMEPAD_HACKS
-    recv(csk, buf, sizeof(buf), 0);
-#endif
+    send(csk, enable_orig, sizeof(enable_orig), 0);
+    send(csk, enable_gasia, sizeof(enable_gasia), 0);
 }
